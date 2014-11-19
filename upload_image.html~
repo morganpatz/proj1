@@ -1,0 +1,76 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head> 
+<title>Morgan's program -- Upload image</title> 
+</head>
+<body> 
+
+<h4> The following can be used to insert an image of BLOB type into an
+Oracle database.
+</h4>
+Note that (1) the table in the database is created by 
+<pre>
+      CREATE TABLE pictures (
+            pic_id int,
+	    pic_desc  varchar(100),
+	    pic  BLOB,
+	    primary key(pic_id)
+      )
+</pre>
+(2) an SQL sequence in the database is created by
+<pre>
+   CREATE SEQUENCE pic_id_sequence;
+</pre>
+</pre>
+helloooooo
+<pre>
+<p>
+<hr>
+Please input or select the path of the image!
+<form name="upload-image" method="POST" enctype="multipart/form-data" action="UploadImage">
+<table>
+  <tr>
+    <th>File path: </th>
+    <td><input name="file-path" type="file" size="30" ></input></td>
+  </tr>
+
+<!- SUBJECT -!>
+  <tr>
+	<form>
+	Subject: <input type="text"
+	name="subject">
+
+<!- LOCATION -!>
+	Location: <input type="text"
+	name="location">
+	</form>
+  </tr>
+
+<!- DATE -!>
+<!- Taken from: http://www.snaphost.com/captcha/Calendar.aspx - GO WEB DIRECT GROUP LTD. on November 19th, 2014 -!>
+  <tr>
+	Date: <script type="text/javascript"
+	src="http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy-mm-dd"></script></script> &nbsp;
+
+<!- DESCRIPTION -!>
+  <tr>
+	Description: <br>
+  </tr>
+  <tr>
+	<textarea name="description" rows="10" cols="30"></textarea>
+  </tr>
+	
+
+  </tr>
+
+
+
+<!- SUBMIT -!>
+  <tr>
+    <td ALIGN=CENTER COLSPAN="2"><input type="submit" name=".submit" 
+     value="Upload"></td>
+  </tr>
+</table>
+</form>
+</body> 
+</html>
