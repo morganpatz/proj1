@@ -62,39 +62,63 @@ import org.apache.commons.fileupload.FileItem;
 public class UploadImage extends HttpServlet {
 	public String response_message;
 
+	private Connection conn = null;
+
+	// initial values
+	String username = "patzelt";
+	String password = "Chocolate1";
+	String drivername = "oracle.jdbc.driver.OracleDriver";
+	String dbstring = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
+	private String query = "";
+
+	/*
+	 * The interface uses two different forms, one for connection and one for
+	 * query. The following are used to identify which is which.
+	 */
+	private final int CONNECTION_FORM = 1;
+	private final int QUERY_FORM = 2;
+	private int formStatus = CONNECTION_FORM;
+
+	/**
+	 * To allow the servlet to handle a GET request.
+	 * 
+	 * This method posts a connection form such that the user can type in the
+	 * following parameters: User Name, Password, JDBC Driver Name, Database
+	 * Connection String to connect to a specified database.
+	 */
+	public void doGet(HttpServletRequest request, HttpServletResponse res)
+			throws IOException, ServletException {
+		res.setContentType("text/html");
+		PrintWriter out = res.getWriter();
+		formStatus = CONNECTION_FORM;
+	}
+
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// change the following parameters to connect to the oracle database
-		String username = "patzelt";
-		String password = "Chocolate1";
-		String drivername = "oracle.jdbc.driver.OracleDriver";
-		String dbstring = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
 		int photo_id;
 		String command = "oops";
 
 		try {
 
 			// Get information from html
-			String subject = "";
-			String location = "";
-			String date = "";
-			String description = "";
+			String subject = "yippee";
+			String location = null;
+			String date = null;
+			String description = null;
 			File photo = null;
 			Date sqlDate = null;
 
+			response.setContentType("text/html");
+			
 			subject = request.getParameter("subject");
 			location = request.getParameter("location");
-			date = request.getParameter("date");
+			// date = request.getParameter("date");
 			description = request.getParameter("description");
-			//photo = request.getParameter("file-path");
-	
+			date = "1992-02-23";
+			// photo = request.getParameter("file-path");
+			
 
-			// Convert date string to Date type
-			if (!date.equals("")) {
-				sqlDate = java.sql.Date.valueOf(date);
-			} 
-
-			/**
 			// Parse the HTTP request to get the image stream
 			DiskFileUpload fu = new DiskFileUpload();
 			List FileItems = fu.parseRequest(request);
@@ -109,7 +133,6 @@ public class UploadImage extends HttpServlet {
 
 			// Get the image stream
 			InputStream instream = item.getInputStream();
-			**/
 
 			// Connect to the database and create a statement
 			Connection conn = getConnected(drivername, dbstring, username,
@@ -119,20 +142,23 @@ public class UploadImage extends HttpServlet {
 			/*
 			 * First, to generate a unique pic_id using an SQL sequence
 			 */
-			ResultSet rset1 = stmt.executeQuery("SELECT pic_id_sequence.nextval from dual"); // good
+			ResultSet rset1 = stmt
+					.executeQuery("SELECT pic_id_sequence.nextval from dual"); // good
 			rset1.next();
 			photo_id = rset1.getInt(1);
 
 			command = "INSERT INTO images VALUES (" + photo_id
-				+ ", 'user', 0, " + subject + ", " + location + ", " + sqlDate
-				+ ", " + description + ", empty_blob(), empty_blob())";
-			
+					+ ", 'user', 0, '" + subject + "', '" + location
+					+ "', to_date('" + date + "', 'YYYY-MM-DD'), '"
+					+ description + "', empty_blob(), empty_blob())";
 
 			stmt.execute(command);
-			
-			//PreparedStatement stmt1 = conn.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = + " + photo_id);
-			//stmt1.setBinaryStream(1, instream);
-			//stmt1.executeUpdate();
+
+			PreparedStatement stmt1 = conn
+					.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = + "
+							+ photo_id);
+			stmt1.setBinaryStream(1, instream);
+			stmt1.executeUpdate();
 
 			response_message = "YAHHOOOOOO";
 			conn.close();

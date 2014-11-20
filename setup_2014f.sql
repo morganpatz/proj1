@@ -64,9 +64,11 @@ CREATE TABLE images (
    description varchar(2048),
    thumbnail   blob,
    photo       blob,
-   PRIMARY KEY(photo_id),
-   FOREIGN KEY(owner_name) REFERENCES users,
-   FOREIGN KEY(permitted) REFERENCES groups
+   PRIMARY KEY(photo_id)
+/*
+ *  FOREIGN KEY(owner_name) REFERENCES users,
+ *  FOREIGN KEY(permitted) REFERENCES groups
+ */
 );
 
 CREATE SEQUENCE pic_id_sequence;

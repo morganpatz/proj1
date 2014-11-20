@@ -27,41 +27,27 @@ helloooooo
 <p>
 <hr>
 Please input or select the path of the image!
-<form name="upload-image" method="POST" enctype="multipart/form-data" action="UploadImage">
+<form method="POST" enctype="multipart/form-data" action="UploadImage">
 <table>
   <tr>
     <th>File path: </th>
-    <td><input name="file-path" type="file" size="30" ></input></td>
-  </tr>
+    <td><input name="file-path" type="file" size="30" ></td>
 
-<!- SUBJECT -!>
-  <tr>
-	<form>
-	Subject: <input type="text"
-	name="subject">
+	<LABEL for="subject">Subject: </LABEL>
+        <INPUT type=text id=subject name="subject"></input>
 
 <!- LOCATION -!>
 	Location: <input type="text"
 	name="location">
-	</form>
-  </tr>
 
 <!- DATE -!>
 <!- Taken from: http://www.snaphost.com/captcha/Calendar.aspx - GO WEB DIRECT GROUP LTD. on November 19th, 2014 -!>
-  <tr>
 	Date: <script type="text/javascript"
 	src="http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy-mm-dd"></script></script> &nbsp;
 
 <!- DESCRIPTION -!>
-  <tr>
 	Description: <br>
-  </tr>
-  <tr>
 	<textarea name="description" rows="10" cols="30"></textarea>
-  </tr>
-	
-
-  </tr>
 
 
 

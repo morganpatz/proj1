@@ -11,13 +11,6 @@ DROP TABLE persons;
 DROP TABLE users;
 DROP SEQUENCE pic_id_sequence;
 
-
-CREATE TABLE photos (
-            pic_id int,
-	    pic  BLOB,
-	    primary key(pic_id)
-
-
 CREATE TABLE users (
    user_name varchar(24),
    password  varchar(24),
@@ -72,8 +65,10 @@ CREATE TABLE images (
    thumbnail   blob,
    photo       blob,
    PRIMARY KEY(photo_id),
-   FOREIGN KEY(owner_name) REFERENCES users,
-   FOREIGN KEY(permitted) REFERENCES groups
+/*
+ *  FOREIGN KEY(owner_name) REFERENCES users,
+ *  FOREIGN KEY(permitted) REFERENCES groups
+ */
 );
 
 CREATE SEQUENCE pic_id_sequence;
