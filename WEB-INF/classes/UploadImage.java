@@ -58,9 +58,11 @@ import java.util.Date.*;
  */
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.io.FilenameUtils;
 
 public class UploadImage extends HttpServlet {
-	public String response_message;
+	public String response_message = "Nothing Happened";
 
 	private Connection conn = null;
 
@@ -69,105 +71,86 @@ public class UploadImage extends HttpServlet {
 	String password = "Chocolate1";
 	String drivername = "oracle.jdbc.driver.OracleDriver";
 	String dbstring = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
-	private String query = "";
-
-	/*
-	 * The interface uses two different forms, one for connection and one for
-	 * query. The following are used to identify which is which.
-	 */
-	private final int CONNECTION_FORM = 1;
-	private final int QUERY_FORM = 2;
-	private int formStatus = CONNECTION_FORM;
-
-	/**
-	 * To allow the servlet to handle a GET request.
-	 * 
-	 * This method posts a connection form such that the user can type in the
-	 * following parameters: User Name, Password, JDBC Driver Name, Database
-	 * Connection String to connect to a specified database.
-	 */
-	public void doGet(HttpServletRequest request, HttpServletResponse res)
-			throws IOException, ServletException {
-		res.setContentType("text/html");
-		PrintWriter out = res.getWriter();
-		formStatus = CONNECTION_FORM;
-	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// change the following parameters to connect to the oracle database
-		int photo_id;
-		String command = "oops";
+		int photo_id = 0;
+		String subject = null;
+		String location = null;
+		String date = null;
+		String description = null;
+		File photo = null;
+		Date sqlDate = null;
+		String command = "";
+		InputStream instream = null;
+		Statement stmt = null;
+		PreparedStatement stmt1 = null;
 
 		try {
-
-			// Get information from html
-			String subject = "yippee";
-			String location = null;
-			String date = null;
-			String description = null;
-			File photo = null;
-			Date sqlDate = null;
-
-			response.setContentType("text/html");
-			
-			subject = request.getParameter("subject");
-			location = request.getParameter("location");
-			// date = request.getParameter("date");
-			description = request.getParameter("description");
-			date = "1992-02-23";
-			// photo = request.getParameter("file-path");
-			
-
 			// Parse the HTTP request to get the image stream
 			DiskFileUpload fu = new DiskFileUpload();
 			List FileItems = fu.parseRequest(request);
 
-			// Process the uploaded items, assuming only 1 image file uploaded
+			// Process the uploaded items, assuming only 1 image file
+			// uploaded
 			Iterator i = FileItems.iterator();
 			FileItem item = (FileItem) i.next();
+			String fieldname = "";
+			String fieldvalue;
 			while (i.hasNext() && item.isFormField()) {
+				// Process regular form field (input
+				// type="text|radio|checkbox|etc", select, etc).
+				fieldname = item.getFieldName();
+				fieldvalue = item.getString();
+
+				if (fieldname.equals("subject")) {
+					subject = fieldvalue;
+				} else if (fieldname.equals("location")) {
+					location = fieldvalue;
+				} else if (fieldname.equals("SnapHost_Calendar")) {
+					date = fieldvalue;
+				} else if (fieldname.equals("description")) {
+					description = fieldvalue;
+				} 
 				item = (FileItem) i.next();
+				response_message = response_message + fieldname;
+				
 			}
-			long size = item.getSize();
+			// Process form file field (input type="file").
+			fieldname = item.getFieldName();
+			String filename = FilenameUtils.getName(item.getName());
+			instream = item.getInputStream();
+			response_message = response_message + fieldname;
 
-			// Get the image stream
-			InputStream instream = item.getInputStream();
 
-			// Connect to the database and create a statement
-			Connection conn = getConnected(drivername, dbstring, username,
-					password);
-			Statement stmt = conn.createStatement();
+		// Connect to the database and create a statement
+		Connection conn;
+		conn = getConnected(drivername, dbstring, username, password);
+		stmt = conn.createStatement();
 
-			/*
-			 * First, to generate a unique pic_id using an SQL sequence
-			 */
-			ResultSet rset1 = stmt
-					.executeQuery("SELECT pic_id_sequence.nextval from dual"); // good
-			rset1.next();
-			photo_id = rset1.getInt(1);
+		/*
+		 * First, to generate a unique pic_id using an SQL sequence
+		 */
+		ResultSet rset1 = stmt.executeQuery("SELECT pic_id_sequence.nextval from dual"); // good
+		rset1.next();
+		photo_id = rset1.getInt(1);
 
-			command = "INSERT INTO images VALUES (" + photo_id
-					+ ", 'user', 0, '" + subject + "', '" + location
-					+ "', to_date('" + date + "', 'YYYY-MM-DD'), '"
-					+ description + "', empty_blob(), empty_blob())";
+		command = "INSERT INTO images VALUES (" + photo_id + ", 'user', 0, '"
+				+ subject + "', '" + location + "', to_date('" + date
+				+ "', 'YYYY-MM-DD'), '" + description
+				+ "', empty_blob(), empty_blob())";
 
-			stmt.execute(command);
+		stmt.execute(command);
 
-			PreparedStatement stmt1 = conn
-					.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = + "
-							+ photo_id);
-			stmt1.setBinaryStream(1, instream);
-			stmt1.executeUpdate();
-
-			response_message = "YAHHOOOOOO";
-			conn.close();
-
-		} catch (Exception ex) {
-			response_message = ex.getMessage();
-			command = "yikes";
+		stmt1 = conn.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = " + photo_id);
+		stmt1.setBinaryStream(1, instream);
+		stmt1.executeUpdate();
+		response_message = "File Uploaded!";
+		} catch (Exception e) {
+			response_message = response_message + "uh oh";
 		}
-
+		try {
 		// Output response to the client
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
@@ -175,6 +158,9 @@ public class UploadImage extends HttpServlet {
 				+ "Transitional//EN\">\n" + "<HTML>\n"
 				+ "<HEAD><TITLE>Upload Message</TITLE></HEAD>\n" + "<BODY>\n"
 				+ "<H1>" + response_message + "</H1>\n" + "</BODY></HTML>");
+		} catch (Exception e) {
+			response_message = response_message + "4";	
+		}
 	}
 
 	/*
@@ -186,4 +172,5 @@ public class UploadImage extends HttpServlet {
 		DriverManager.registerDriver((Driver) drvClass.newInstance());
 		return (DriverManager.getConnection(dbstring, username, password));
 	}
+
 }

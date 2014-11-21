@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252"> 
+<title>Sample program -- Upload image</title> 
+</head>
+<body> 
+
+<h4> The following can be used to insert an image of BLOB type into an
+LogicSQL database.
+</h4>
+Note that (1) the table in the database is created by 
+<pre>      CREATE TABLE pictures (
+            pic_id int,
+	    pic_desc  varchar(100),
+	    pic  BLOB,
+	    primary key(pic_id)
+      )
+</pre>
+(2) a unique constraint violation will be returned if the table
+already contains a row with the same primary key value.
+<p>
+</p><hr>
+Please input or select the path of the image!
+<form name="upload-image" method="POST" enctype="multipart/form-data" action="servlet/UploadImageLogicSQL">
+<table>
+  <tbody><tr>
+    <th>File path: </th>
+    <td><input name="file-path" size="30" type="file"></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="CENTER"><input name=".submit" value="Upload" type="submit"></td>
+  </tr>
+</tbody></table>
+</form>
+ 
+
+</body></html>

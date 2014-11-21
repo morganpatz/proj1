@@ -51,12 +51,12 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>SimpleQuery</servlet-name>
-        <servlet-class>SimpleQuery</servlet-class>
+        <servlet-name>SimpleQueryNew</servlet-name>
+        <servlet-class>SimpleQueryNew</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>SimpleQuery</servlet-name>
-        <url-pattern>/SimpleQuery</url-pattern>
+        <servlet-name>SimpleQueryNew</servlet-name>
+        <url-pattern>/SimpleQueryNew</url-pattern>
     </servlet-mapping>
 
   <servlet>

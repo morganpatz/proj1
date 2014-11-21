@@ -60,12 +60,12 @@
     </servlet-mapping>
 
   <servlet>
-        <servlet-name>UploadImageLogicSQL</servlet-name>
-        <servlet-class>UploadImageLogicSQL</servlet-class>
+        <servlet-name>UploadImage</servlet-name>
+        <servlet-class>UploadImage</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>UploadImageLogicSQL</servlet-name>
-        <url-pattern>/UploadImageLogicSQL</url-pattern>
+        <servlet-name>UploadImage</servlet-name>
+        <url-pattern>/UploadImage</url-pattern>
     </servlet-mapping>
 
 

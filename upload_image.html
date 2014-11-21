@@ -1,63 +1,45 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
 <html>
-<head> 
-<title>Morgan's program -- Upload image</title> 
+<body>
+<head>
+<title>File Upload</title>
 </head>
-<body> 
+<body >
+<h3>Please Upload An Image</h3>
+<P>
 
-<h4> The following can be used to insert an image of BLOB type into an
-Oracle database.
-</h4>
-Note that (1) the table in the database is created by 
-<pre>
-      CREATE TABLE pictures (
-            pic_id int,
-	    pic_desc  varchar(100),
-	    pic  BLOB,
-	    primary key(pic_id)
-      )
-</pre>
-(2) an SQL sequence in the database is created by
-<pre>
-   CREATE SEQUENCE pic_id_sequence;
-</pre>
-</pre>
-helloooooo
-<pre>
-<p>
-<hr>
-Please input or select the path of the image!
+
 <form name="upload-image" method="POST" enctype="multipart/form-data" action="UploadImage">
 <table>
-  <tr>
-    <th>File path: </th>
-    <td><input name="file-path" type="file" size="30" ></td>
+<tr>
+<td> Subject: 
+<td> <input type=text size=20 name=subject> 
 
-<!- SUBJECT -!>
-	<LABEL for="subject">Subject: </LABEL>
-        <INPUT type=text id=subject name="subject">
+<tr><td alian = right>  Location: </td>
+<td alian = left> <input type=text size=20 name=location></td></tr>
 
-<!- LOCATION -!>
-	Location: <input type="text"
-	name="location">
+<tr><td alian = right>  Date: </td>
+<td alian = left> <script type="text/javascript"
+src="http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy-mm-dd"></script></script> &nbsp;</td></tr>
 
-<!- DATE -!>
-<!- Taken from: http://www.snaphost.com/captcha/Calendar.aspx - GO WEB DIRECT GROUP LTD. on November 19th, 2014 -!>
-	Date: <script type="text/javascript"
-	src="http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy-mm-dd"></script></script> &nbsp;
+<tr><td alian = right>  Description: </td>
+<td alian = left> <textarea name=description rows=10 cols=30></textarea></td></tr>
 
-<!- DESCRIPTION -!>
-	Description: <br>
-	<textarea name="description" rows="10" cols="30"></textarea>
+<tr><td alian = right>  File Path: </td>
+<td alian = left> <input name="file-path" type="file" size="30" ></td></tr>
 
 
-
-<!- SUBMIT -!>
-  <tr>
-    <td ALIGN=CENTER COLSPAN="2"><input type="submit" name=".submit" 
-     value="Upload"></td>
-  </tr>
-</table>
+<tr><td alian = center colspan="2"><input type = submit value = Upload!></td></tr>
 </form>
-</body> 
+</table>
+
+</body>
 </html>
+
+
+
+
+
+
+
+
+
