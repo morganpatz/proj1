@@ -61,7 +61,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.io.FilenameUtils;
 
-public class UploadImage extends HttpServlet {
+public class EditImage extends HttpServlet {
 	public String response_message = "Nothing Happened";
 
 	private Connection conn = null;
@@ -75,103 +75,74 @@ public class UploadImage extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// change the following parameters to connect to the oracle database
-		int photo_id = 0;
-		String subject = null;
-		String location = null;
-		String date = null;
-		String description = null;
-		File photo = null;
-		Date sqlDate = null;
+		String photo_id = request.getQueryString();
 		String command = "";
 		InputStream instream = null;
 		Statement stmt = null;
 		PreparedStatement stmt1 = null;
+		PreparedStatement update = null;
+
+		String subject = null;
+		String place = null;
+		String timing = null;
+		String description = null;
 
 		try {
 			// Parse the HTTP request to get the image stream
 			DiskFileUpload fu = new DiskFileUpload();
 			List FileItems = fu.parseRequest(request);
 
-			// Process the uploaded items, assuming only 1 image file
-			// uploaded
-			Iterator i = FileItems.iterator();
-			FileItem item = (FileItem) i.next();
-			String fieldname = "";
-			String fieldvalue;
-			while (i.hasNext() && item.isFormField()) {
-				// Process regular form field (input
-				// type="text|radio|checkbox|etc", select, etc).
-				fieldname = item.getFieldName();
-				fieldvalue = item.getString();
+			subject = request.getParameter("subject");
+			place = request.getParameter("place");
+			timing = request.getParameter("timing");
+			description = request.getParameter("description");
 
-				if (fieldname.equals("subject")) {
-					subject = fieldvalue;
-				} else if (fieldname.equals("location")) {
-					location = fieldvalue;
-				} else if (fieldname.equals("SnapHost_Calendar")) {
-					date = fieldvalue;
-				} else if (fieldname.equals("description")) {
-					description = fieldvalue;
-				} 
-				item = (FileItem) i.next();
-				response_message = response_message + fieldname;
-				
+			// Connect to the database and create a statement
+			Connection conn;
+			conn = getConnected(drivername, dbstring, username, password);
+			stmt = conn.createStatement();
+
+			if (!subject.isEmpty()) {
+				update = conn.prepareStatement("UPDATE images SET subject = "
+						+ subject + " WHERE photo_id = " + photo_id);
+				update.executeUpdate();
 			}
-			// Process form file field (input type="file").
-			fieldname = item.getFieldName();
-			String filename = FilenameUtils.getName(item.getName());
-			instream = item.getInputStream();
-			response_message = response_message + fieldname;
+			if (!place.isEmpty()) {
+				update = conn.prepareStatement("UPDATE images SET place = "
+						+ place + " WHERE photo_id = " + photo_id);
+				update.executeUpdate();
+			}
+			if (!timing.isEmpty()) {
+				update = conn.prepareStatement("UPDATE images SET timing = "
+						+ timing + " WHERE photo_id = " + photo_id);
+				update.executeUpdate();
+			}
+			if (!description.isEmpty()) {
+				update = conn
+						.prepareStatement("UPDATE images SET description = "
+								+ description + " WHERE photo_id = " + photo_id);
+				update.executeUpdate();
+			}
 
-
-		// Connect to the database and create a statement
-		Connection conn;
-		conn = getConnected(drivername, dbstring, username, password);
-		stmt = conn.createStatement();
-
-		/*
-		 * First, to generate a unique pic_id using an SQL sequence
-		 */
-		ResultSet rset1 = stmt.executeQuery("SELECT pic_id_sequence.nextval from dual"); // good
-		rset1.next();
-		photo_id = rset1.getInt(1);
-		
-		response_message = response_message + "photoid";
-
-		command = "INSERT INTO images VALUES (" + photo_id + ", 'user', 0, '"
-				+ subject + "', '" + location + "', to_date('" + date
-				+ "', 'YYYY-MM-DD'), '" + description
-				+ "', empty_blob(), empty_blob())";
-		response_message = response_message + "query";
-
-		stmt.execute(command);
-		response_message = response_message + "executed";
-
-		stmt1 = conn.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = " + photo_id);
-		response_message = response_message + "update";
-		stmt1.setBinaryStream(1, instream);
-		stmt1.executeUpdate();
-		response_message = response_message + "update1";
-
-		PreparedStatement stmt2 = conn.prepareStatement("UPDATE images SET thumbnail = photo WHERE photo_id = " + photo_id);
-		stmt2.executeUpdate();
-		response_message = response_message + "update2";
-
-	
-		response_message = "File Uploaded!";
+			response_message = "Image Updated!";
 		} catch (Exception e) {
 			response_message = response_message + "uh oh";
 		}
 		try {
-		// Output response to the client
-		response.setContentType("text/html");
-		PrintWriter out = response.getWriter();
-		out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 "
-				+ "Transitional//EN\">\n" + "<HTML>\n"
-				+ "<HEAD><TITLE>Upload Message</TITLE></HEAD>\n" + "<BODY>\n"
-				+ "<H1>" + response_message + "</H1>\n" + "</BODY></HTML>");
+			// Output response to the client
+			response.setContentType("text/html");
+			PrintWriter out = response.getWriter();
+			out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 "
+					+ "Transitional//EN\">\n" + "<HTML>\n"
+					+ "<HEAD><TITLE>Upload Message</TITLE></HEAD>\n"
+					+ "<BODY>\n" + "<H1>" + response_message + "</H1>\n"
+					+ "</BODY></HTML>");
+			out.println("<P><a href=\"GetBigPic?big" + photo_id
+					+ "\"> Back To Image </a>");
+			out.println("</body>");
+			out.println("</html>");
 		} catch (Exception e) {
-			response_message = response_message + "4";	
+			response_message = response_message + "4";
 		}
 	}
 

@@ -3,6 +3,9 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.sql.*;
 
+import oracle.jdbc.*;
+import oracle.sql.*;
+
 /**
  *  This servlet sends one picture stored in the table below to the client 
  *  who requested the servlet.
@@ -20,6 +23,8 @@ import java.sql.*;
 public class GetOnePic extends HttpServlet 
     implements SingleThreadModel {
 
+
+
     /**
      *    This method first gets the query string indicating PHOTO_ID,
      *    and then executes the query 
@@ -32,14 +37,13 @@ public class GetOnePic extends HttpServlet
 	throws ServletException, IOException {
 	
 	//  construct the query  from the client's QueryString
-	String picid  = request.getQueryString();
+	String photo_id  = request.getQueryString();
 	String query;
 
-	if ( picid.startsWith("big") )  
-	    query = 
-	     "select image from pictures where photo_id=" + picid.substring(3);
+	if ( photo_id.startsWith("big") )  
+	    query = "SELECT photo FROM images WHERE photo_id = " + photo_id.substring(3);
 	else
-	    query = "select sm_image from pictures where photo_id=" + picid;
+	    query = "SELECT thumbnail FROM images WHERE photo_id = " + photo_id;
 
 	ServletOutputStream out = response.getOutputStream();
 
@@ -53,7 +57,7 @@ public class GetOnePic extends HttpServlet
 	    ResultSet rset = stmt.executeQuery(query);
 
 	    if ( rset.next() ) {
-		response.setContentType("image/gif");
+		response.setContentType("image/jpeg");
 		InputStream input = rset.getBinaryStream(1);	    
 		int imageByte;
 		while((imageByte = input.read()) != -1) {
@@ -75,6 +79,8 @@ public class GetOnePic extends HttpServlet
 	    }
 	}
     }
+
+           
 
     /*
      *   Connect to the specified database

@@ -47,7 +47,7 @@ public class PictureBrowse extends HttpServlet implements SingleThreadModel {
 	 *   to execute the given query
 	 */
 	try {
-	    String query = "select photo_id from pictures";
+	    String query = "SELECT photo_id FROM images";
 
 	    Connection conn = getConnected();
 	    Statement stmt = conn.createStatement();
@@ -57,10 +57,12 @@ public class PictureBrowse extends HttpServlet implements SingleThreadModel {
 	    while (rset.next() ) {
 		p_id = (rset.getObject(1)).toString();
 
+
 	       // specify the servlet for the image
-               out.println("<a href=\"/cshome/patzelt/catalina/webapps/proj1/WEB-INF/classes/GetBigPic?big"+p_id+"\">");
-	       // specify the servlet for the themernail
-	       out.println("<img src=\"/cshome/patzelt/catalina/webapps/proj1/WEB-INF/classes/GetOnePic?"+p_id +"\"></a>");
+	       out.println("<a href=\"GetBigPic?big" + p_id + "\">");
+	       // specify the servlet for the thumbnail
+	       out.println("<img src=\"GetOnePic?" + p_id + "\"></a>");
+
 	    }
 	    stmt.close();
 	    conn.close();

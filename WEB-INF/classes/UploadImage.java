@@ -135,17 +135,29 @@ public class UploadImage extends HttpServlet {
 		ResultSet rset1 = stmt.executeQuery("SELECT pic_id_sequence.nextval from dual"); // good
 		rset1.next();
 		photo_id = rset1.getInt(1);
+		
+		response_message = response_message + "photoid";
 
 		command = "INSERT INTO images VALUES (" + photo_id + ", 'user', 0, '"
 				+ subject + "', '" + location + "', to_date('" + date
 				+ "', 'YYYY-MM-DD'), '" + description
 				+ "', empty_blob(), empty_blob())";
+		response_message = response_message + "query";
 
 		stmt.execute(command);
+		response_message = response_message + "executed";
 
 		stmt1 = conn.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = " + photo_id);
+		response_message = response_message + "update";
 		stmt1.setBinaryStream(1, instream);
 		stmt1.executeUpdate();
+		response_message = response_message + "update1";
+
+		PreparedStatement stmt2 = conn.prepareStatement("UPDATE images SET thumbnail = photo WHERE photo_id = " + photo_id);
+		stmt2.executeUpdate();
+		response_message = response_message + "update2";
+
+	
 		response_message = "File Uploaded!";
 		} catch (Exception e) {
 			response_message = response_message + "uh oh";
@@ -158,6 +170,9 @@ public class UploadImage extends HttpServlet {
 				+ "Transitional//EN\">\n" + "<HTML>\n"
 				+ "<HEAD><TITLE>Upload Message</TITLE></HEAD>\n" + "<BODY>\n"
 				+ "<H1>" + response_message + "</H1>\n" + "</BODY></HTML>");
+		out.println("<P><a href=\"PictureBrowse\"> See Pictures </a>");
+		out.println("</body>");
+		out.println("</html>");
 		} catch (Exception e) {
 			response_message = response_message + "4";	
 		}
