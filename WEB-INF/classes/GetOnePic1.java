@@ -1,0 +1,134 @@
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.sql.*;
+import oracle.jdbc.*;
+import oracle.sql.*;
+
+/**
+ * This servlet sends one picture stored in the table below to the client who
+ * requested the servlet.
+ * 
+ * picture( photo_id: integer, title: varchar, place: varchar, sm_image: blob,
+ * image: blob )
+ * 
+ * The request must come with a query string as follows: GetOnePic?12: sends the
+ * picture in sm_image with photo_id = 12 GetOnePic?big12: sends the picture in
+ * image with photo_id = 12
+ * 
+ * @author Li-Yan Yuan
+ * 
+ */
+public class GetOnePic1 extends HttpServlet implements SingleThreadModel {
+
+	private String inputBinaryFileName = null;
+	private File inputBinaryFile = null;
+
+	private String outputBinaryFileName1 = null;
+	private File outputBinaryFile1 = null;
+
+	private String outputBinaryFileName2 = null;
+	private File outputBinaryFile2 = null;
+
+	/**
+	 * This method first gets the query string indicating PHOTO_ID, and then
+	 * executes the query select image from yuan.photos where photo_id =
+	 * PHOTO_ID Finally, it sends the picture to the client
+	 */
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		// construct the query from the client's QueryString
+		String photo_id = request.getQueryString();
+		String query;
+
+		if (photo_id.startsWith("big"))
+			query = "SELECT photo FROM images WHERE photo_id = "
+					+ photo_id.substring(3);
+		else
+			query = "SELECT photo FROM images WHERE photo_id = " + photo_id;
+
+
+		Blob photo = null;
+    		Connection conn = null;
+    		Statement stmt = null;
+    		ResultSet rs = null;
+
+    		ServletOutputStream out = response.getOutputStream();
+
+    		try {
+      			conn = getConnected();
+    		} catch (Exception e) {
+      			response.setContentType("text/html");
+      			out.println("<html><head><title>Person Photo</title></head>");
+      			out.println("<body><h1>Database Connection Problem.</h1></body></html>");
+     	 		return;
+    		}
+
+    		try {
+      			stmt = conn.createStatement();
+      			rs = stmt.executeQuery(query);
+      		if (rs.next()) {
+        		photo = rs.getBlob(1);
+      		} else {
+        		response.setContentType("text/html");
+        		out.println("<html><head><title>Person Photo</title></head>");
+        		out.println("<body><h1>No photo found for id= " + photo_id + " </h1></body></html>");
+       			 return;
+      		}
+
+      		response.setContentType("image/jpeg");
+     		InputStream in = photo.getBinaryStream();
+      		int length = (int) photo.length();
+
+      		int bufferSize = 1024;
+      		byte[] buffer = new byte[bufferSize];
+
+      		while ((length = in.read(buffer)) != -1) {
+        		System.out.println("writing " + length + " bytes");
+        		out.write(buffer, 0, length);
+      		}
+
+      		in.close();
+      		out.flush();
+    		} catch (SQLException e) {
+      			response.setContentType("text/html");
+      			out.println("<html><head><title>Error: Person Photo</title></head>");
+      			out.println("<body><h1>Error=" + e.getMessage() + "</h1></body></html>");
+      			return;
+    		} finally {
+      			try {
+        			rs.close();
+        			stmt.close();
+        			conn.close();
+      			} catch (SQLException e) {
+        			e.printStackTrace();
+      			}
+    		}
+
+
+
+
+	}
+
+	/*
+	 * Connect to the specified database
+	 */
+	private Connection getConnected() throws Exception {
+
+		String username = "patzelt";
+		String password = "Chocolate1";
+		/* one may replace the following for the specified database */
+		String dbstring = "jdbc.logicsql@luscar.cs.ualberta.ca:2000:database";
+		String driverName = "com.shifang.logicsql.jdbc.driver.LogicSqlDriver";
+
+		/*
+		 * to connect to the database
+		 */
+		Class drvClass = Class.forName(driverName);
+		DriverManager.registerDriver((Driver) drvClass.newInstance());
+		return (DriverManager.getConnection(dbstring, username, password));
+	}
+}
+

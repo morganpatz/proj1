@@ -51,12 +51,12 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>SimpleQuery</servlet-name>
-        <servlet-class>SimpleQuery</servlet-class>
+        <servlet-name>SimpleQueryNew</servlet-name>
+        <servlet-class>SimpleQueryNew</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>SimpleQuery</servlet-name>
-        <url-pattern>/SimpleQuery</url-pattern>
+        <servlet-name>SimpleQueryNew</servlet-name>
+        <url-pattern>/SimpleQueryNew</url-pattern>
     </servlet-mapping>
 
   <servlet>
@@ -66,6 +66,15 @@
     <servlet-mapping>
         <servlet-name>UploadImage</servlet-name>
         <url-pattern>/UploadImage</url-pattern>
+    </servlet-mapping>
+
+  <servlet>
+        <servlet-name>EditImage</servlet-name>
+        <servlet-class>EditImage</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>EditImage</servlet-name>
+        <url-pattern>/EditImage</url-pattern>
     </servlet-mapping>
 
 
