@@ -5,6 +5,8 @@
   <BODY>
     <!--
 	This module will handle the requirements for the security module.
+	Note that none of these functions will close any connections passed
+	to them.
       -->
 
     <%!
@@ -42,21 +44,21 @@
     
     <%!
        <!--
-	   A helper function for safely executing a single SQL insert query.
-	   Closes the passed query.
+	   A helper function for safely executing a single SQL update query.
+	   Does not close the passed connection.
 	   Usage:
 	   --update: A string containing a proper SQL update statement.
 	   --conn: A connection to an SQL database.
 	 -->
-       public int insert_value (String insert, connection conn){
-       //Attempt to execute the insert statement.
+       public int update_value (String update, connection conn){
+       //Attempt to execute the update statement.
        Statement stmt = null;
        try{
          stmt = conn.createStatement();
-         stmt.executeUpdate(insert);
+         stmt.executeUpdate(update);
          conn.commit();
        }
-       //If something went wrong during the insert, attempt to rollback the
+       //If something went wrong during the update, attempt to rollback the
        //changes.
        catch (SQLException sqle) {
          try {
@@ -70,85 +72,12 @@
            return -1;
          }
        } 
-       
-       //Lastly, attempt to close the connection.
-       finally {
-         try{
-           conn.close();
-         }
-         //If closing the connection somehow fails, report the failure.
-         catch(Exception ex){
-           out.println("<hr>" + ex.getMessage() + "<hr>");
-           return -1;
-         }
-       }
-       //If we got here, the insert was a success!
+       //If we got here, the update was a success!
        return 1;
        }
        %>
 
-    <!-- The pseudo-code of the related queries
-	 Creating a Group:
-	 Since one needs to be logged in to make a group, making one is easy.
-	 Well, almost. We need to generate a group id for the group first.
-	 Assume that:
-	 --userid is the user name of the user requesting the action
-	 --groupname is the name of the group submitted by the user, it DOES
-	   NOT have to be unique on its own, though the combination of user
-	   and group name as a tuple must be unique.
-	 if ((userid, groupname) is unique) {
-	   id += 1;
-	   INSERT INTO groups VALUES(id, userid, groupname, sysdate);
-	 }
-	 else { tell the user to pick a new group name }
-
-	 Updating a group's list of members:
-	 When adding a person into the group, the user needs to supply the
-	 user name of the friend being added, and the name of group which the
-	 user plans on adding this friend to. As group names alone are not
-	 unique, we need to figure out the group id from the supplied group
-	 name and the user id of the user performing the action.
-	 Assume that:
-	 --userid is the user name of the user requesting the action
-	 --groupname is the name of the group submitted by the user.
-	 --friendid is the user name of the friend the user has submitted.
-	 The query to find the correct id should be as follows:
-	 declare int gid = null;
-	 SELECT g.group_id INTO gid
-	 FROM groups g, users u
-	 WHERE g.user_name == u.user_name AND
-	       u.user_name == userid
-	       g.group_name == groupname
-	 
-	 From here, we can insert the friend into the correct group, if such
-	 a group exists and the provided friend's id is valid.
-	 if (gid exists && friendid is valid) {
-	   INSERT INTO group_lists (group_id, friend_id, date_added)
-	   VALUES(gid, friendid, sysdate);
-	 else {tell the user to try again}
-	 
-	 The process for removing friends from a group list follows the same
-	 logic above, but concludes with an appropriate DELETE statement.
-
-	 As a side note, how are we going to deal with the notice value...?
-
-	 Viewing Images:
-	 A user may view an image if:
-	 --The value of PERMITTED is set to 1; that is, it's set to public
-	 --The user_id  of the user is admin
-	 --The user_id of the user is the same as the one that uploaded the
-	   image
-	 --If the value of PERMITTED is set to a value greater than 2, and the
-	   user_id of the user belongs in the group that matches the value
-	   of PERMITTED
-
-	 Updating Image Information / Deleting Images:
-	 A user that can update a given image can also delete said image. In
-	 order to perform either on a given image, the user_id of the one
-	 requesting this action must be any of the following:
-	 --admin
-	 --the same user_id as the one that uploaded the image
-	 -->
+    
 
     <!-- Creating a Group:
 	 Since one needs to be logged in to make a group, making one is easy.
@@ -181,10 +110,6 @@
        //If the name is already in use by this user, then reject the
        //registration and tell the user to choose a new group name.
        if(groupname.equals(nameused)) {
-       //Oh, and close the connection.
-       try{
-       conn.close();
-       }
        catch(Exception ex){
        out.println("<hr>" + ex.getMessage() + "<hr>");
        }
@@ -268,12 +193,6 @@
        //If the supplied friend ID is invalid, reject the update.
        if(friendid != valid_friend || valid_friend == "") {
        out.println("Invalid friend ID supplied, please try again.<br>");
-       try{
-       conn.close();
-       }
-       catch(Exception ex){
-       out.println("<hr>" + ex.getMessage() + "<hr>");
-       }
        return "";
        }
 
@@ -289,12 +208,6 @@
        //user.
        if(gid == "") {
        out.println("You have not created a group with that name.<br>");
-       try{
-       conn.close();
-       }
-       catch(Exception ex){
-       out.println("<hr>" + ex.getMessage() + "<hr>");
-       }
        return "";
        }
        
@@ -327,7 +240,7 @@
        if(friendid != redundant_friend) {
        String insert_friend = "insert into group_lists (GROUP_ID, FRIEND_ID, "
        +"DATE_ADDED) values ('"+gid+"', '"+friendid+"', sysdate)";
-       int attempt_insert = insert_value(insert_friend, conn);
+       int attempt_insert = update_value(insert_friend, conn);
        if(attempt_insert == 1);
          out.println(friendid+"has been added to "+groupname+".<br>");
        else
@@ -337,12 +250,6 @@
       
        //Otherwise, we just tell the user that the friend is already in the
        //selected group.
-       try{
-       conn.close();
-       }
-       catch(Exception ex){
-       out.println("<hr>" + ex.getMessage() + "<hr>");
-       }
        out.println(friendid+"is already a member of "+groupname+".<br>");
        return 0;
        }
@@ -353,7 +260,7 @@
        String friendid, Connection conn){
        //We need to check to see if the user has supplied a a valid group name
        //and an existing friend ID.
-        String groupid = "";
+       String groupid = "";
        groupid = validate_group_update(userid, groupname, friendid,
        conn);
        if(groupid == "") {
@@ -369,26 +276,84 @@
        if(friendid.equals(is_present)) {
        String remove_friend = "delete from group_lists where FRIEND_ID = '"
        +friendid+"'";
-       int attempt_delete = insert_value(insert_friend, conn);
+       int attempt_delete = update_value(remove_friend, conn);
        if(attempt_delete == 1);
          out.println(friendid+"has been removed from "+groupname+".<br>");
        else
          out.println("An error occured during the deletion.<br>");
-       return attempt_insert;
+       return attempt_delete;
        }
       
        //Otherwise, we just tell the user that the friend is not in the
        //selected group.
-       try{
-       conn.close();
-       }
-       catch(Exception ex){
-       out.println("<hr>" + ex.getMessage() + "<hr>");
-       }
        out.println(friendid+"is not a member of "+groupname+".<br>");
        return 0;
        }
        %>
+    <!-- Viewing Images:
+	 A user may view an image if:
+      --The value of PERMITTED is set to 1; that is, it's set to public
+      --The user_id  of the user is admin
+      --The user_id of the user is the same as the one that uploaded the
+	image
+      --If the value of PERMITTED is set to a value greater than 2, and the
+	user_id of the user belongs in the group that matches the value
+	of PERMITTED
+	
+	If permission to view the image is granted, view_allowed returns 1.
+	Else, it returns a 0.
+      -->
+    <%!
+       public int view_allowed(String userid, String photoid, Connection conn){
+       //First, let's see if it's the admin requesting to view the image.
+       //If so, grant permission to view.
+       if(userid.equals("admin")){
+         return 1;
+       }
+       
+       //If not, check if the user trying to view one of the user's own images.
+       String is_image_users = "select OWNER_NAME from IMAGES "
+       +"where PHOTO_ID = "+photoid;
+       String image_owner = "";
+       image_owner = query_value(is_image_users, conn);
+       
+       //If so, grant permission to view.
+       if(userid.equals(image_owner)){
+         return 1;
+       }
+
+       //If not, we next check the permission setting of the image.
+       String permission_check = "select PERMITTED from IMAGES "
+       +"where PHOTO_ID = '"+photoid;
+       String image_permission = query_value(permission_check, conn);
+       
+       //If the image permission is set to 1 (public), grant access to view.
+       if(image_permission.equals("1")){
+        return 1;
+       }
+       
+       //If not, check if the permission is set to a group ID that the user
+       //is a friend in.
+       String group_check = "select FRIEND_ID from GROUP_LISTS where "
+       +"GROUP_ID = "+image_permission+" and FRIEND_ID = '"+userid+"'";
+       String in_group = query_value(group_check, conn);
+       if(userid.equals(in_group) {
+         return 1;
+       }
+       //If the user met none of the above conditions, then deny permission to
+       //view the image.
+       return 0;
+       }
+       %>
+
+    <!-- Updating Image Information / Deleting Images:
+	 A user that can update a given image can also delete said image. In
+	 order to perform either on a given image, the user_id of the one
+	 requesting this action must be any of the following:
+	 --admin
+	 --the same user_id as the one that uploaded the image
+	 -->
+    <%!%>
     
   </BODY>
 </HTML>
