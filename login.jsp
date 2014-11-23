@@ -13,7 +13,6 @@
     <%@ page import="java.sql.*" %>
     <%
     
-    
        if(request.getParameter("bSubmit") != null)
     {
        
@@ -90,8 +89,9 @@
        //Create a cookie to allow the server to recognize the login.
        Cookie login_cookie = new Cookie(userid, userid+"'s_cookie");
        response.addCookie(login_cookie);
-       out.println(login_cookie.getName()+"<br>");
+       //out.println(login_cookie.getName()+"<br>");
        out.println("<p><b>Your Login is Successful!</b></p>");
+       out.println("<a href=testmain.jsp>Click here to continue.</a>");
        
        //Link to a user's home page should go here.
        }
