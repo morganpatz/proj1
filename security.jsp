@@ -10,13 +10,18 @@
       -->
 
     <%!
+       public class Security {
+
+       public Security(){
+       }
+       
        <!--
 	   A helper function that executes a query for a given value, and
 	   and returns that value as a string. Returns the resulting value in
 	   a string if a value is found. Otherwise, an empty string is returned.
 	   Usage:
-	   --query: A string containing an SQL query.
-	   --conn: A connection to an SQL database.
+	 --query: A string containing an SQL query.
+	 --conn: A connection to an SQL database.
 	 -->
        public String query_value(String query, Connection conn){
        //Establish the given statement and execute the query.
@@ -32,17 +37,15 @@
        out.println("<hr>" + ex.getMessage() + "<hr>");
        return "";
        }
-
+       
        //Convert the result set from the query into a string.
        while(rset != null && rset.next())
        result_string = (rset.getString(1)).trim();
-
+       
        //Return the resulting string.
        return result_string;
        }
-       %>
     
-    <%!
        <!--
 	   A helper function for safely executing a single SQL update query.
 	   Returns 1 if the update is successful, -1 if an SQL error occured.
@@ -75,9 +78,7 @@
        //If we got here, the update was a success!
        return 1;
        }
-       %>
 
-    <%!
        <!--
 	   A function that contains the logic that applies to both adding and
 	   removing members from a group. It's called by add_friend and
@@ -131,9 +132,7 @@
        //database.
        return gid;
        }
-       %>
 
-    <%!
        <!--
 	   A simple function that checks if the user has permission to edit
 	   a given image. Note that a user that can edit an image is also able
@@ -166,10 +165,9 @@
        //does not have permission to edit the image.
        return 0;
        }
-       %>
-    
 
-    <!-- Creating a Group:
+       <!-- 
+	 Creating a Group:
 	 Since one needs to be logged in to make a group, making one is easy.
 	 Well, almost. We need to generate a group id for the group first.
 	 Assume that:
@@ -191,8 +189,7 @@
 	 --groupname: the name of the group specified by the user
 	 --conn: a connection to an sql database
 	 -->
-    
-    <%!
+
        public int create_group(String userid, String groupname,
        Connection conn) {
        //First, we need to check if the user can use this group_name. We start
@@ -237,13 +234,11 @@
        return attempt_insert;
        }
 
-       %>
-
-    <!--
+       <!--
 	Updating a group's list of members:
-	 When adding a person into the group, the user needs to supply the
-	 user name of the friend being added, and the name of group which the
-	 user plans on adding this friend to. As group names alone are not
+	When adding a person into the group, the user needs to supply the
+	user name of the friend being added, and the name of group which the
+	user plans on adding this friend to. As group names alone are not
 	 unique, we need to figure out the group id from the supplied group
 	 name and the user id of the user performing the action.
 	 Assume that:
@@ -280,8 +275,6 @@
 	   from the selected group.
 	 --conn: a connection to an sql database
 	 -->
-    
-    <%!
        public int add_friend(String userid, String groupname, String friendid,
        Connection conn) {
        //We need to check to see if the user has supplied a a valid group name
@@ -316,9 +309,7 @@
        out.println(friendid+"is already a member of "+groupname+".<br>");
        return 0;
        }
-       %>
-    
-    <%!
+
        public int remove_friend(String userid, String groupname,
        String friendid, Connection conn){
        //We need to check to see if the user has supplied a a valid group name
@@ -352,7 +343,6 @@
        out.println(friendid+"is not a member of "+groupname+".<br>");
        return 0;
        }
-       %>
 
     <!-- Viewing Images:
 	 A user may view an image if:
@@ -367,7 +357,6 @@
 	If permission to view the image is granted, view_allowed returns 1.
 	Else, it returns a 0.
       -->
-    <%!
        public int view_allowed(String userid, String photoid, Connection conn){
        //First, let's check if the user has permission to edit the image. A
        //user that can edit a given image can also view it.
@@ -397,8 +386,7 @@
        //If the user met none of the above conditions, then deny permission to
        //view the image.
        return 0;
-       }
-       %>
+    }
 
     <!-- Updating Image Information / Deleting Images:
 	 A user that can update a given image can also delete said image. In
@@ -407,21 +395,30 @@
 	 --admin
 	 --the same user_id as the one that uploaded the image
 	 -->
-    <%!
-       <!--
-	   The function that edits an image if the user requesting to edit has
-	   permission to do so. It
-	 -->
+
+    <!--
+	The function that edits an image if the user requesting to edit has
+	permission to do so. It returns a 1 if the edit is successful; 0 if
+	the request to edit the image is rejected.
+	Usage:
+      --username: the user_id of the user who requested this action
+      --photoid: the photo_id of the selected photo
+      --
+      -->
        
        public int edit_image(String username, String photoid,
        Connection conn){
        //First, let's check if the user has permission to edit the image.
        int edit_permission = edit_allowed(userid, photoid, conn);
+       //If the user lacks permission to edit, reject the request.
        if(edit_permission == 0){
          return 0;
        }
+
+       //Else, edit the image as specified by the user.
        }
-       %>
+    }
+    %>
     
   </BODY>
 </HTML>
