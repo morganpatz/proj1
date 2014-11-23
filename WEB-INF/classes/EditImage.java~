@@ -79,8 +79,10 @@ public class EditImage extends HttpServlet {
 		String command = "";
 		InputStream instream = null;
 		Statement stmt = null;
-		PreparedStatement stmt1 = null;
-		PreparedStatement update = null;
+		PreparedStatement updateSub = null;
+		PreparedStatement updateLoc = null;
+		PreparedStatement updateDate = null;
+		PreparedStatement updateDesc = null;
 
 		String subject = null;
 		String place = null;
@@ -88,41 +90,44 @@ public class EditImage extends HttpServlet {
 		String description = null;
 
 		try {
-			// Parse the HTTP request to get the image stream
-			DiskFileUpload fu = new DiskFileUpload();
-			List FileItems = fu.parseRequest(request);
-
 			subject = request.getParameter("subject");
 			place = request.getParameter("place");
-			timing = request.getParameter("timing");
+			timing = request.getParameter("SnapHost_Calendar");
 			description = request.getParameter("description");
-
+			response_message = response_message + subject + place + timing + description + "PHOTO ID = " + photo_id;
+		
 			// Connect to the database and create a statement
 			Connection conn;
 			conn = getConnected(drivername, dbstring, username, password);
 			stmt = conn.createStatement();
+			response_message = response_message + "connection good";
+	
 
 			if (!subject.isEmpty()) {
-				update = conn.prepareStatement("UPDATE images SET subject = "
-						+ subject + " WHERE photo_id = " + photo_id);
-				update.executeUpdate();
+				updateSub = conn.prepareStatement("UPDATE images SET subject = \'"
+						+ subject + "\' WHERE photo_id = " + photo_id);
+				updateSub.executeUpdate();
 			}
+
 			if (!place.isEmpty()) {
-				update = conn.prepareStatement("UPDATE images SET place = "
-						+ place + " WHERE photo_id = " + photo_id);
-				update.executeUpdate();
+				updateLoc = conn.prepareStatement("UPDATE images SET place = \'"
+						+ place + "\' WHERE photo_id = " + photo_id);
+				updateLoc.executeUpdate();
 			}
+/**
 			if (!timing.isEmpty()) {
-				update = conn.prepareStatement("UPDATE images SET timing = "
+				updateDate = conn.prepareStatement("UPDATE images SET timing = "
 						+ timing + " WHERE photo_id = " + photo_id);
-				update.executeUpdate();
+				updateDate.executeUpdate();
 			}
+**/
 			if (!description.isEmpty()) {
-				update = conn
-						.prepareStatement("UPDATE images SET description = "
-								+ description + " WHERE photo_id = " + photo_id);
-				update.executeUpdate();
+				updateDesc = conn
+						.prepareStatement("UPDATE images SET description = \'"
+								+ description + "\' WHERE photo_id = " + photo_id);
+				updateDesc.executeUpdate();
 			}
+
 
 			response_message = "Image Updated!";
 		} catch (Exception e) {
@@ -154,6 +159,11 @@ public class EditImage extends HttpServlet {
 		Class drvClass = Class.forName(drivername);
 		DriverManager.registerDriver((Driver) drvClass.newInstance());
 		return (DriverManager.getConnection(dbstring, username, password));
+	}
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doPost(request, response);
 	}
 
 }

@@ -56,6 +56,21 @@ public class GetOnePic extends HttpServlet
 	    Statement stmt = conn.createStatement();
 	    ResultSet rset = stmt.executeQuery(query);
 
+response.setContentType("image/gif");
+      InputStream in = photo.getBinaryStream();
+      int length = (int) photo.length();
+
+      int bufferSize = 1024;
+      byte[] buffer = new byte[bufferSize];
+
+      while ((length = in.read(buffer)) != -1) {
+        System.out.println("writing " + length + " bytes");
+        out.write(buffer, 0, length);
+      }
+
+      in.close();
+      out.flush();
+
 	    if ( rset.next() ) {
 		response.setContentType("image/jpeg");
 		InputStream input = rset.getBinaryStream(1);	    
@@ -80,34 +95,7 @@ public class GetOnePic extends HttpServlet
 	}
     }
 
-            outputBinaryFile1       = new File(outputBinaryFileName1);
-            outputFileOutputStream  = new FileOutputStream(outputBinaryFile1);
-
-            sqlText = 
-                "SELECT photo " +
-                "FROM   images " +
-                "WHERE  id =  " + photo_id +
-                " FOR UPDATE";
-            rset = stmt.executeQuery(sqlText);
-            rset.next();
-            image = ((OracleResultSet) rset).getBLOB("photo");
-            
-            blobLength = image.length();
-            chunkSize = image.getChunkSize();
-            binaryBuffer = new byte[chunkSize];
-            
-            for (position = 1; position <= blobLength; position += chunkSize) {
-                
-                // Loop through while reading a chunk of data from the BLOB
-                // column using the getBytes() method. This data will be stored
-                // in a temporary buffer that will be written to disk.
-                bytesRead = image.getBytes(position, chunkSize, binaryBuffer);
-
-                // Now write the buffer to disk.
-                outputFileOutputStream.write(binaryBuffer, 0, bytesRead);
-                
-                totbytesRead += bytesRead;
-                totbytesWritten += bytesRead;
+           
 
     /*
      *   Connect to the specified database
@@ -115,15 +103,14 @@ public class GetOnePic extends HttpServlet
     private Connection getConnected() throws Exception {
 
 	String username = "patzelt";
-	String password = "Chocolate1";
-        /* one may replace the following for the specified database */
-	String dbstring = "jdbc.logicsql@luscar.cs.ualberta.ca:2000:database";
-	String driverName = "com.shifang.logicsql.jdbc.driver.LogicSqlDriver";
+    String password = "Chocolate1";
+    String drivername = "oracle.jdbc.driver.OracleDriver";
+    String dbstring="jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
 
 	/*
 	 *  to connect to the database
 	 */
-	Class drvClass = Class.forName(driverName); 
+	Class drvClass = Class.forName(drivername); 
 	DriverManager.registerDriver((Driver) drvClass.newInstance());
 	return( DriverManager.getConnection(dbstring,username,password) );
     }

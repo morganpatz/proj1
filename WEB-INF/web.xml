@@ -82,7 +82,7 @@
         <servlet-class>EditForm</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>EditIForm</servlet-name>
+        <servlet-name>EditForm</servlet-name>
         <url-pattern>/EditForm</url-pattern>
     </servlet-mapping>
 

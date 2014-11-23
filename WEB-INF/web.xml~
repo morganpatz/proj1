@@ -77,5 +77,14 @@
         <url-pattern>/EditImage</url-pattern>
     </servlet-mapping>
 
+  <servlet>
+        <servlet-name>EditForm</servlet-name>
+        <servlet-class>EditForm</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>EditIForm</servlet-name>
+        <url-pattern>/EditForm</url-pattern>
+    </servlet-mapping>
+
 
 </web-app>

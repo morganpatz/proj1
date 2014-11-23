@@ -67,7 +67,7 @@ public class GetBigPic extends HttpServlet implements SingleThreadModel {
 				description = rset.getString("description");
 				out.println("<html><head><title>\"" + subject + "\"</title></head>");				
 				out.println("<body bgcolor=\"#000000\" text=\"#cccccc\">"
-						+ "<center><img src = \"GetOnePic?\"" + photo_id + "\">"
+						+ "<center><img src = \"GetOnePic?big" + photo_id + "\">"
 						+ "<h3>Owner: " + owner_name + "</h3>"
 						+ "<h3>Subject: " + subject + "</h3>"
 						+ "<h3>Location: " + place + "</h3>"

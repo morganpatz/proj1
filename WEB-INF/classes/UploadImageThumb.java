@@ -64,7 +64,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.io.FilenameUtils;
 
-public class UploadImage extends HttpServlet {
+public class UploadImageThumb extends HttpServlet {
 	public String response_message = "Nothing Happened";
 
 	private Connection conn = null;
@@ -126,8 +126,8 @@ public class UploadImage extends HttpServlet {
 			instream = item.getInputStream();
 			response_message = response_message + fieldname;
 
-			//BufferedImage img = ImageIO.read(instream);
-			//BufferedImage thumbnail = shrink(img, 10);
+			BufferedImage img = ImageIO.read(instream);
+			BufferedImage thumbnail = shrink(img, 10);
 
 			// Connect to the database and create a statement
 			Connection conn;
@@ -153,18 +153,30 @@ public class UploadImage extends HttpServlet {
 			stmt.execute(command);
 			response_message = response_message + "executed";
 
-			stmt1 = conn.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = " + photo_id);
-			response_message = response_message + "update";
-			stmt1.setBinaryStream(1, instream);
-			stmt1.executeUpdate();
-			response_message = response_message + "update1";
+			// to retrieve the lob_locator
+			// Note that you must use "FOR UPDATE" in the select statement
+			String cmd = "SELECT * FROM images WHERE photo_id = " + photo_id
+					+ " FOR UPDATE";
+			ResultSet rset = stmt.executeQuery(cmd);
+			rset.next();
+			BLOB myblob = ((OracleResultSet) rset).getBLOB(3);
 
-			PreparedStatement stmt2 = conn
-					.prepareStatement("UPDATE images SET thumbnail = photo WHERE photo_id = " + photo_id);
-			stmt2.executeUpdate();
-			response_message = response_message + "update2";
+			// Write the image to the blob object
+			OutputStream outstream = myblob.getBinaryOutputStream();
+			ImageIO.write(thumbnail, "jpg", outstream);
 
-			response_message = "File Uploaded!";
+			/*
+			 * int size = myblob.getBufferSize(); byte[] buffer = new
+			 * byte[size]; int length = -1; while ((length =
+			 * instream.read(buffer)) != -1) outstream.write(buffer, 0, length);
+			 */
+			instream.close();
+			outstream.close();
+
+			stmt.executeUpdate("commit");
+			response_message = " Upload OK!  ";
+			conn.close();
+
 		} catch (Exception e) {
 			response_message = response_message + "uh oh";
 		}

@@ -64,7 +64,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.io.FilenameUtils;
 
-public class UploadImage extends HttpServlet {
+public class UploadImageThumb extends HttpServlet {
 	public String response_message = "Nothing Happened";
 
 	private Connection conn = null;

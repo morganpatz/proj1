@@ -67,14 +67,14 @@ public class GetBigPic extends HttpServlet implements SingleThreadModel {
 				description = rset.getString("description");
 				out.println("<html><head><title>\"" + subject + "\"</title></head>");				
 				out.println("<body bgcolor=\"#000000\" text=\"#cccccc\">"
-						+ "<center><img src = \"GetOnePic?\"" + photo_id + "\">"
+						+ "<center><img src = \"GetOnePic?big\"" + photo_id + "\">"
 						+ "<h3>Owner: " + owner_name + "</h3>"
 						+ "<h3>Subject: " + subject + "</h3>"
 						+ "<h3>Location: " + place + "</h3>"
 						+ "<h3>Date: " + timing + "</h3>"
 						+ "<h3>Description: " + description + "</h3>"
 						+ "</body></html>");
-				out.println("<P><a href=\"edit_image.html?" + photo_id + "\"> Edit Image </a>");
+				out.println("<P><a href=\"EditForm?" + photo_id + "\"> Edit Image </a>");
 			}
 			//} else
 			//	out.println("<html> Pictures are not available</html>");

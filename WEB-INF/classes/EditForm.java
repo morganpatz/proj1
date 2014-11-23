@@ -82,9 +82,9 @@ public class EditForm extends HttpServlet {
 		out.println("<html><body><head><title>Edit Image</title></head><body ><P>");
 		out.println("<form name=\"EditForm\" method=\"POST\" action=\"EditImage?" + photo_id + "\"><table>");
 		out.println("<tr><td> Subject: <td> <input type=text size=20 name=subject>");
-		out.println("<tr><td alian = right>  Location: </td><td alian = left> <input type=text size=20 name=location></td></tr>");
-		out.println("<tr><td alian = right>  Date: </td><td alian = left> <script type=\"text/javascript");
-		out.println("src=\"http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy-mm-dd\"></script></script> &nbsp;</td></tr>");
+		out.println("<tr><td alian = right>  Location: </td><td alian = left> <input type=text size=20 name=place></td></tr>");
+		out.println("<tr><td alian = right>  Date: </td><td alian = left> <script type=\"text/javascript\""
+			+" src=\"http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy-mm-dd\"></script></script> &nbsp;</td></tr>");
 		out.println("<tr><td alian = right>  Description: </td><td alian = left> <textarea name=description rows=10 cols=30></textarea></td></tr>");
 		out.println("<tr><td alian = center colspan=\"2\"><input type = submit value = \"Update Image\"></td></tr></form></table></body></html>");
 

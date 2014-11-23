@@ -56,6 +56,7 @@ public class GetOnePic extends HttpServlet
 	    Statement stmt = conn.createStatement();
 	    ResultSet rset = stmt.executeQuery(query);
 
+
 	    if ( rset.next() ) {
 		response.setContentType("image/jpeg");
 		InputStream input = rset.getBinaryStream(1);	    
@@ -88,15 +89,14 @@ public class GetOnePic extends HttpServlet
     private Connection getConnected() throws Exception {
 
 	String username = "patzelt";
-	String password = "Chocolate1";
-        /* one may replace the following for the specified database */
-	String dbstring = "jdbc.logicsql@luscar.cs.ualberta.ca:2000:database";
-	String driverName = "com.shifang.logicsql.jdbc.driver.LogicSqlDriver";
+    String password = "Chocolate1";
+    String drivername = "oracle.jdbc.driver.OracleDriver";
+    String dbstring="jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
 
 	/*
 	 *  to connect to the database
 	 */
-	Class drvClass = Class.forName(driverName); 
+	Class drvClass = Class.forName(drivername); 
 	DriverManager.registerDriver((Driver) drvClass.newInstance());
 	return( DriverManager.getConnection(dbstring,username,password) );
     }
