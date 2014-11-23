@@ -90,10 +90,10 @@
        Cookie login_cookie = new Cookie(userid, userid+"'s_cookie");
        response.addCookie(login_cookie);
        //out.println(login_cookie.getName()+"<br>");
-       out.println("<p><b>Your Login is Successful!</b></p>");
-       out.println("<a href=testmain.jsp>Click here to continue.</a>");
-       
        //Link to a user's home page should go here.
+       out.println("<p><b>Your Login is Successful!</b></p>");
+       //out.println("<a href=testmain.jsp>Click here to continue.</a>");
+       out.println("<a href=PictureBrowse>Click here to continue.</a>");
        }
        else
        { out.println("<p><b>Either your userName or Your password is inValid!</b></p>");
