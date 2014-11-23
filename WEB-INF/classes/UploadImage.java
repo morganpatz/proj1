@@ -89,99 +89,129 @@ public class UploadImage extends HttpServlet {
 		InputStream instream = null;
 		Statement stmt = null;
 		PreparedStatement stmt1 = null;
+		PrintWriter out = response.getWriter();
 
-		try {
-			// Parse the HTTP request to get the image stream
-			DiskFileUpload fu = new DiskFileUpload();
-			List FileItems = fu.parseRequest(request);
-
-			// Process the uploaded items, assuming only 1 image file
-			// uploaded
-			Iterator i = FileItems.iterator();
-			FileItem item = (FileItem) i.next();
-			String fieldname = "";
-			String fieldvalue;
-			while (i.hasNext() && item.isFormField()) {
-				// Process regular form field (input
-				// type="text|radio|checkbox|etc", select, etc).
-				fieldname = item.getFieldName();
-				fieldvalue = item.getString();
-
-				if (fieldname.equals("subject")) {
-					subject = fieldvalue;
-				} else if (fieldname.equals("location")) {
-					location = fieldvalue;
-				} else if (fieldname.equals("SnapHost_Calendar")) {
-					date = fieldvalue;
-				} else if (fieldname.equals("description")) {
-					description = fieldvalue;
+		String userid = "";
+		Cookie login_cookie = null;
+		Cookie cookie = null;
+		Cookie[] cookies = null;
+		// Get an array of cookies associated with this domain
+		cookies = request.getCookies();
+		// If any cookies were found, see if any of them contain a valid login.
+		if (cookies != null) {
+			for (int i = 0; i < cookies.length; i++) {
+				cookie = cookies[i];
+				// out.println(cookie.getName()+"<br>");
+				// However, we only want one cookie, the one whose name matches
+				// the
+				// userid that has logged in on this browser.
+				if (i != 0 && userid == "") {
+					userid = cookie.getName();
 				}
-				item = (FileItem) i.next();
+			}
+		}
+		// If no login was detected, redirect the user to the login page.
+		if (userid == "") {
+			out.println("<a href=login.jsp>Please login to access this site.</a>");
+		}
+		// Else, we have a valid session.
+		else {
+
+			try {
+				// Parse the HTTP request to get the image stream
+				DiskFileUpload fu = new DiskFileUpload();
+				List FileItems = fu.parseRequest(request);
+
+				// Process the uploaded items, assuming only 1 image file
+				// uploaded
+				Iterator i = FileItems.iterator();
+				FileItem item = (FileItem) i.next();
+				String fieldname = "";
+				String fieldvalue;
+				while (i.hasNext() && item.isFormField()) {
+					// Process regular form field (input
+					// type="text|radio|checkbox|etc", select, etc).
+					fieldname = item.getFieldName();
+					fieldvalue = item.getString();
+
+					if (fieldname.equals("subject")) {
+						subject = fieldvalue;
+					} else if (fieldname.equals("location")) {
+						location = fieldvalue;
+					} else if (fieldname.equals("SnapHost_Calendar")) {
+						date = fieldvalue;
+					} else if (fieldname.equals("description")) {
+						description = fieldvalue;
+					}
+					item = (FileItem) i.next();
+					response_message = response_message + fieldname;
+
+				}
+				// Process form file field (input type="file").
+				fieldname = item.getFieldName();
+				String filename = FilenameUtils.getName(item.getName());
+				instream = item.getInputStream();
 				response_message = response_message + fieldname;
 
+				// BufferedImage img = ImageIO.read(instream);
+				// BufferedImage thumbnail = shrink(img, 10);
+
+				// Connect to the database and create a statement
+				Connection conn;
+				conn = getConnected(drivername, dbstring, username, password);
+				stmt = conn.createStatement();
+
+				/*
+				 * First, to generate a unique pic_id using an SQL sequence
+				 */
+				ResultSet rset1 = stmt
+						.executeQuery("SELECT pic_id_sequence.nextval from dual"); // good
+				rset1.next();
+				photo_id = rset1.getInt(1);
+
+				response_message = response_message + "photoid";
+
+				command = "INSERT INTO images VALUES (" + photo_id
+						+ ", '" + userid + "', 0, '" + subject + "', '" + location
+						+ "', to_date('" + date + "', 'YYYY-MM-DD'), '"
+						+ description + "', empty_blob(), empty_blob())";
+				response_message = response_message + "query";
+
+				stmt.execute(command);
+				response_message = response_message + "executed";
+
+				stmt1 = conn
+						.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = "
+								+ photo_id);
+				response_message = response_message + "update";
+				stmt1.setBinaryStream(1, instream);
+				stmt1.executeUpdate();
+				response_message = response_message + "update1";
+
+				PreparedStatement stmt2 = conn
+						.prepareStatement("UPDATE images SET thumbnail = photo WHERE photo_id = "
+								+ photo_id);
+				stmt2.executeUpdate();
+				response_message = response_message + "update2";
+
+				response_message = "File Uploaded!";
+			} catch (Exception e) {
+				response_message = response_message + "uh oh";
 			}
-			// Process form file field (input type="file").
-			fieldname = item.getFieldName();
-			String filename = FilenameUtils.getName(item.getName());
-			instream = item.getInputStream();
-			response_message = response_message + fieldname;
-
-			//BufferedImage img = ImageIO.read(instream);
-			//BufferedImage thumbnail = shrink(img, 10);
-
-			// Connect to the database and create a statement
-			Connection conn;
-			conn = getConnected(drivername, dbstring, username, password);
-			stmt = conn.createStatement();
-
-			/*
-			 * First, to generate a unique pic_id using an SQL sequence
-			 */
-			ResultSet rset1 = stmt
-					.executeQuery("SELECT pic_id_sequence.nextval from dual"); // good
-			rset1.next();
-			photo_id = rset1.getInt(1);
-
-			response_message = response_message + "photoid";
-
-			command = "INSERT INTO images VALUES (" + photo_id
-					+ ", 'user', 0, '" + subject + "', '" + location
-					+ "', to_date('" + date + "', 'YYYY-MM-DD'), '"
-					+ description + "', empty_blob(), empty_blob())";
-			response_message = response_message + "query";
-
-			stmt.execute(command);
-			response_message = response_message + "executed";
-
-			stmt1 = conn.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = " + photo_id);
-			response_message = response_message + "update";
-			stmt1.setBinaryStream(1, instream);
-			stmt1.executeUpdate();
-			response_message = response_message + "update1";
-
-			PreparedStatement stmt2 = conn
-					.prepareStatement("UPDATE images SET thumbnail = photo WHERE photo_id = " + photo_id);
-			stmt2.executeUpdate();
-			response_message = response_message + "update2";
-
-			response_message = "File Uploaded!";
-		} catch (Exception e) {
-			response_message = response_message + "uh oh";
-		}
-		try {
-			// Output response to the client
-			response.setContentType("text/html");
-			PrintWriter out = response.getWriter();
-			out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 "
-					+ "Transitional//EN\">\n" + "<HTML>\n"
-					+ "<HEAD><TITLE>Upload Message</TITLE></HEAD>\n"
-					+ "<BODY>\n" + "<H1>" + response_message + "</H1>\n"
-					+ "</BODY></HTML>");
-			out.println("<P><a href=\"PictureBrowse\"> See Pictures </a>");
-			out.println("</body>");
-			out.println("</html>");
-		} catch (Exception e) {
-			response_message = response_message + "4";
+			try {
+				// Output response to the client
+				response.setContentType("text/html");
+				out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 "
+						+ "Transitional//EN\">\n" + "<HTML>\n"
+						+ "<HEAD><TITLE>Upload Message</TITLE></HEAD>\n"
+						+ "<BODY>\n" + "<H1>" + response_message + "</H1>\n"
+						+ "</BODY></HTML>");
+				out.println("<P><a href=\"PictureBrowse\"> See Pictures </a>");
+				out.println("</body>");
+				out.println("</html>");
+			} catch (Exception e) {
+				response_message = response_message + "4";
+			}
 		}
 	}
 
