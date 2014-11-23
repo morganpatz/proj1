@@ -65,11 +65,12 @@ CREATE TABLE images (
    thumbnail   blob,
    photo       blob,
    PRIMARY KEY(photo_id)
-/*
- *  FOREIGN KEY(owner_name) REFERENCES users,
- *  FOREIGN KEY(permitted) REFERENCES groups
- */
+   FOREIGN KEY(owner_name) REFERENCES users,
+   FOREIGN KEY(permitted) REFERENCES groups
 );
+
+
+
 
 CREATE SEQUENCE pic_id_sequence;
 

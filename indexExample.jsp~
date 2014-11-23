@@ -168,7 +168,7 @@
           
             if(!(request.getParameter("query").equals("")))
             {
-              PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), subject, description FROM images WHERE CONTAINS (description, '" + request.getParameter("query") + "', 1) > 0");
+              PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), subject, description FROM images WHERE CONTAINS (description, '" + request.getParameter("query") + "', 1) > 0 order by score(1), description");
               //doSearch.setString(1, request.getParameter("query"));
               ResultSet rset2 = doSearch.executeQuery();
               out.println("<table border=1>");

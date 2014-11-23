@@ -26,21 +26,21 @@
       </tr>
     </table>
     
-    <p>The <a href=setup_2014f.sql>sql</a> for the above table</p>
+    <p>The <a href=item.sql>sql</a> for the above table</p>
     <br>
     
     <%
       String m_url = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
       String m_driverName = "oracle.jdbc.driver.OracleDriver";
       
-      String m_userName = "patzelt"; //supply username
-      String m_password = "Chocolate1"; //supply password
+      String m_userName = ""; //supply username
+      String m_password = ""; //supply password
       
       String addItemError = "";
       
       Connection m_con;
       String createString;
-      String selectString = "select subject, place, description from images";
+      String selectString = "select itemName, description from item";
       Statement stmt;
       
       try
@@ -61,15 +61,55 @@
 
       try
       {
-
+             
+        //first try to see if we are adding any items to the database
+        if (request.getParameter("addRecord") != null)
+        {
+          if(!(request.getParameter("itemName").equals("") || request.getParameter("description").equals("")))
+          {
+             //disable the auto commit mode
+             m_con.setAutoCommit(false);
+            
+            Statement stmt2 = m_con.createStatement();
+            ResultSet rset2 = stmt2.executeQuery("select item_seq.nextVal from dual");
+            int nextItemId;
+            if(rset2.next())
+            {
+              nextItemId = rset2.getInt(1);
+            }
+            else    
+            {
+                m_con.close();
+                out.println("<b>Error: item_seq does not exist</b>");
+                return;       
+            }
+            
+            PreparedStatement addItem = m_con.prepareStatement("insert into item values(?, ?, ?)");
+            addItem.setInt(1, nextItemId);
+            addItem.setString(2, request.getParameter("itemName"));
+            addItem.setString(3, request.getParameter("description"));
+            addItem.executeUpdate();
+            m_con.commit();
+            stmt2.close();
+            addItem.close();
+            //enable the auto commit mode
+            m_con.setAutoCommit(true);
+          }
+          else
+          {
+            addItemError = "Item name or description is missing\n";
+          }
+        }
+        else if(request.getParameter("updateIndex") != null)
+        {
+        }
         
         stmt = m_con.createStatement();
         ResultSet rset = stmt.executeQuery(selectString);
         out.println("<table border=1>");
         out.println("<tr>");
-        out.println("<th>Subject</th>");
-        out.println("<th>Place</th>");
-	out.println("<th>Description</th>");
+        out.println("<th>Item Name</th>");
+        out.println("<th>Item Description</th>");
         out.println("</tr>"); 
         while(rset.next()) { 
           out.println("<tr>");
@@ -78,9 +118,6 @@
           out.println("</td>");
           out.println("<td>"); 
           out.println(rset.getString(2)); 
-          out.println("</td>");
-	  out.println("<td>"); 
-          out.println(rset.getString(3)); 
           out.println("</td>");
           out.println("</tr>"); 
         } 
@@ -110,7 +147,7 @@
     <table border=1>
       <tr>
         <td face=Courier>
-          SELECT score(1), subject FROM images WHERE contains(description, 'database', 1) > 0 order by score(1) desc;
+          SELECT score(1), itemName FROM item WHERE contains(description, 'database', 1) > 0 order by score(1) desc;
           <br>
         </td>
       </tr>
@@ -168,13 +205,13 @@
           
             if(!(request.getParameter("query").equals("")))
             {
-              PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), subject, description FROM images WHERE CONTAINS (description, '" + request.getParameter("query") + "', 1) > 0");
-              //doSearch.setString(1, request.getParameter("query"));
+              PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), itemName, description FROM item WHERE contains(description, ?, 1) > 0 order by score(1) desc");
+              doSearch.setString(1, request.getParameter("query"));
               ResultSet rset2 = doSearch.executeQuery();
               out.println("<table border=1>");
               out.println("<tr>");
-              out.println("<th>Subject</th>");
-              out.println("<th>Description</th>");
+              out.println("<th>Item Name</th>");
+              out.println("<th>Item Description</th>");
               out.println("<th>Score</th>");
               out.println("</tr>");
               while(rset2.next())
