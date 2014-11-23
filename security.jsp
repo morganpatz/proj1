@@ -5,15 +5,15 @@
   <BODY>
     <!--
 	This module will handle the requirements for the security module.
-	Note that none of these functions will close any connections passed
+	Note that NONE of these functions will close any connections passed
 	to them.
       -->
 
     <%!
        <!--
 	   A helper function that executes a query for a given value, and
-	   and returns that value as a string. Does not close the passed
-	   connection.
+	   and returns that value as a string. Returns the resulting value in
+	   a string if a value is found. Otherwise, an empty string is returned.
 	   Usage:
 	   --query: A string containing an SQL query.
 	   --conn: A connection to an SQL database.
@@ -45,7 +45,7 @@
     <%!
        <!--
 	   A helper function for safely executing a single SQL update query.
-	   Does not close the passed connection.
+	   Returns 1 if the update is successful, -1 if an SQL error occured.
 	   Usage:
 	   --update: A string containing a proper SQL update statement.
 	   --conn: A connection to an SQL database.
@@ -77,6 +77,96 @@
        }
        %>
 
+    <%!
+       <!--
+	   A function that contains the logic that applies to both adding and
+	   removing members from a group. It's called by add_friend and
+	   remove_friend. It returns the group_id of the group the user
+	   specified, encapsulated in a string, only if the user has permission
+	   to edit the group. Otherwise, an empty string is returned.
+	   Usage:
+	 --userid: the user_id of the user who requested this action
+	 --groupname: the name of the group specified by the user
+	 --friendid: the user_id of the one the user wishes to add or remove
+	   from the selected group.
+	 --conn: a connection to an sql database
+	 -->
+       public String validate_group_update(String userid, String groupname,
+       String friendid, Connection conn) {
+       //Before anything else, let's make sure that the user isn't submitting
+       //his or her own id to be updated in a group.
+       if(userid.equals(friendid)){
+       out.println("You can't add or remove yourself from your own group!<br>");
+       return "";
+       }
+
+       //Next, let's make sure the user has submitted a valid friend ID.
+       String friend_check = "select USER_ID from USERS where "
+       +"USERID = '"+friendid+"'";
+       String valid_friend = query_value(friend_check, conn);
+
+       //If the supplied friend ID is invalid, reject the update.
+       if(friendid != valid_friend || valid_friend == "") {
+       out.println("Invalid friend ID supplied, please try again.<br>");
+       return "";
+       }
+
+       //Else, we continue on. Next, we must figure out which group we are
+       //updating.
+       String find_group = "select g.GROUP_ID from GROUPS g, USERS u "
+       +"where g.USER_NAME == u.USER_NAME and u.USER_NAME == '"+userid+"' "
+       +"and g.GROUP_NAME == '"+groupname+"'";
+       String gid = query_value(find_group, conn);
+       
+       //Now, if we do not find a matching group ID, we tell the user that
+       //there does not exist a group with the given name that is made by the
+       //user.
+       if(gid == "") {
+       out.println("You have not created a group with that name.<br>");
+       return "";
+       }
+       
+       //If we got to here, we know that the group is valid, and that the
+       //supplied friend ID is not the user's own ID and exists in the
+       //database.
+       return gid;
+       }
+       %>
+
+    <%!
+       <!--
+	   A simple function that checks if the user has permission to edit
+	   a given image. Note that a user that can edit an image is also able
+	   to view it. Returns 1 if the user has permission, 0 if not.
+	   Usage:
+	   --username: the user_id of the user calling this function
+	   --photoid: the photo_id of the photo selected by the user
+	   --conn: a connection to an sql database
+	   -->
+       
+       public int edit_allowed(String username, String photoid,
+       Connection conn){
+       //First, let's see if it's the admin requesting to edit the image.
+       //If so, grant permission to view.
+       if(userid.equals("admin")){
+         return 1;
+       }
+       
+       //If not, check if the user trying to view one of the user's own images.
+       String is_image_users = "select OWNER_NAME from IMAGES "
+       +"where PHOTO_ID = "+photoid;
+       String image_owner = "";
+       image_owner = query_value(is_image_users, conn);
+       
+       //If so, grant permission to view.
+       if(userid.equals(image_owner)){
+         return 1;
+       }
+       //If the user does not meet either qualification above, then the user
+       //does not have permission to edit the image.
+       return 0;
+       }
+       %>
     
 
     <!-- Creating a Group:
@@ -95,6 +185,11 @@
 
 	 For now, create_group returns an int. 1 if the operation succeeded, 0
 	 if the insert was rejected.
+
+	 Usage:
+	 --userid: the user_id of the user who requested this action
+	 --groupname: the name of the group specified by the user
+	 --conn: a connection to an sql database
 	 -->
     
     <%!
@@ -174,49 +269,17 @@
 	 logic above, but concludes with an appropriate DELETE statement.
 
 	 As a side note, how are we going to deal with the notice value...?
+	 
+	 Both add_friend and remove_friend return 1 if the add/remove is
+	 successful, and return 0 if the edit is rejected.
+
+	 Usage:
+	 --userid: the user_id of the user who requested this action
+	 --groupname: the name of the group specified by the user
+	 --friendid: the user_id of the one the user wishes to add or remove
+	   from the selected group.
+	 --conn: a connection to an sql database
 	 -->
-    <%!
-       public String validate_group_update(String userid, String groupname,
-       String friendid, Connection conn) {
-       //Before anything else, let's make sure that the user isn't submitting
-       //his or her own id to be updated in a group.
-       if(userid.equals(friendid)){
-       out.println("You can't add or remove yourself from your own group!<br>");
-       return "";
-       }
-
-       //Next, let's make sure the user has submitted a valid friend ID.
-       String friend_check = "select USER_ID from USERS where "
-       +"USERID = '"+friendid+"'";
-       String valid_friend = query_value(friend_check, conn);
-
-       //If the supplied friend ID is invalid, reject the update.
-       if(friendid != valid_friend || valid_friend == "") {
-       out.println("Invalid friend ID supplied, please try again.<br>");
-       return "";
-       }
-
-       //Else, we continue on. Next, we must figure out which group we are
-       //updating.
-       String find_group = "select g.GROUP_ID from GROUPS g, USERS u "
-       +"where g.USER_NAME == u.USER_NAME and u.USER_NAME == '"+userid+"' "
-       +"and g.GROUP_NAME == '"+groupname+"'";
-       String gid = query_value(find_group, conn);
-       
-       //Now, if we do not find a matching group ID, we tell the user that
-       //there does not exist a group with the given name that is made by the
-       //user.
-       if(gid == "") {
-       out.println("You have not created a group with that name.<br>");
-       return "";
-       }
-       
-       //If we got to here, we know that the group is valid, and that the
-       //supplied friend ID is not the user's own ID and exists in the
-       //database.
-       return gid;
-       }
-       %>
     
     <%!
        public int add_friend(String userid, String groupname, String friendid,
@@ -290,6 +353,7 @@
        return 0;
        }
        %>
+
     <!-- Viewing Images:
 	 A user may view an image if:
       --The value of PERMITTED is set to 1; that is, it's set to public
@@ -305,20 +369,10 @@
       -->
     <%!
        public int view_allowed(String userid, String photoid, Connection conn){
-       //First, let's see if it's the admin requesting to view the image.
-       //If so, grant permission to view.
-       if(userid.equals("admin")){
-         return 1;
-       }
-       
-       //If not, check if the user trying to view one of the user's own images.
-       String is_image_users = "select OWNER_NAME from IMAGES "
-       +"where PHOTO_ID = "+photoid;
-       String image_owner = "";
-       image_owner = query_value(is_image_users, conn);
-       
-       //If so, grant permission to view.
-       if(userid.equals(image_owner)){
+       //First, let's check if the user has permission to edit the image. A
+       //user that can edit a given image can also view it.
+       int edit_permission = edit_allowed(userid, photoid, conn);
+       if(edit_permission == 1){
          return 1;
        }
 
@@ -353,7 +407,21 @@
 	 --admin
 	 --the same user_id as the one that uploaded the image
 	 -->
-    <%!%>
+    <%!
+       <!--
+	   The function that edits an image if the user requesting to edit has
+	   permission to do so. It
+	 -->
+       
+       public int edit_image(String username, String photoid,
+       Connection conn){
+       //First, let's check if the user has permission to edit the image.
+       int edit_permission = edit_allowed(userid, photoid, conn);
+       if(edit_permission == 0){
+         return 0;
+       }
+       }
+       %>
     
   </BODY>
 </HTML>
