@@ -12,14 +12,40 @@
       -->
     <%@ page import="java.sql.*" %>
     <%
-    
+       // Check to see if a user is already logged in through this browser by
+       // checking the cookies associated with this domain.
+       String userid2 = "";
+       Cookie cookie = null;
+       Cookie[] cookies = null;
+       // Get an array of cookies associated with this domain
+       cookies = request.getCookies();
+       // If any cookies were found, see if any of them contain a valid login.
+       if (cookies != null) {
+       for (int i = 0; i < cookies.length; i++) {
+		cookie = cookies[i];
+		// out.println(cookie.getName()+"<br>");
+		// However, we only want one cookie, the one whose name matches
+		// the userid that has logged in on this browser, if it exists.
+		if (i != 0 && userid2 == "") {
+		    userid2 = cookie.getName();
+		}
+	}
+       }
+			   
+       // If a login was detected, redirect the user to the main page.
+       if (userid2 != "") {
+       out.println("<a href=PictureBrowse>Click here to resume browsing.</a>");
+       }
+       // Else, show the login page.
+       else {
+       
        if(request.getParameter("bSubmit") != null)
-    {
+       {
        
        //get the user input from the login page
        String userid = (request.getParameter("USERID")).trim();
        String pass = (request.getParameter("PASSWD")).trim();
-       out.println("<p>Your input User Name is "+userid+"</p>");
+       //out.println("<p>Your input User Name is "+userid+"</p>");
        //out.println("<p>Your input password is "+pass+"</p>");
        
        
@@ -125,7 +151,8 @@
        //Ask the user to register
        out.println("New to this site? ");
        out.println("<a href=register.jsp>Please register here!</a>");
-       }      
+       }
+       }
        %>
     
     

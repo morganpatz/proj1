@@ -63,6 +63,11 @@ public class PictureBrowse extends HttpServlet implements SingleThreadModel {
 			out.println("<title> Photo List </title>");
 			out.println("</head>");
 			out.println("<body bgcolor=\"#000000\" text=\"#cccccc\" >");
+			out.println("<left>");
+			out.println("<a href=\"PictureBrowse\">Manage groups</a>");
+			out.println("<P ALIGN=\"right\">");
+			out.println("<a href=\"logout.jsp\">Log out</a>");
+			out.println("</P>");
 			out.println("<center>");
 			out.println("<P><a href=\"upload_image.html\"> Upload Image </a>");
 			out.println("<h3>The List of Images </h3>");
