@@ -69,6 +69,13 @@ CREATE TABLE images (
    FOREIGN KEY(permitted) REFERENCES groups
 );
 
+CREATE TABLE rankImage (
+   photo_id   int, 
+   rank       int, 
+   PRIMARY KEY(photo_id), 
+   FOREIGN KEY(photo_id) REFERENCES images
+);
+
 
 
 

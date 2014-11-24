@@ -1,4 +1,3 @@
-package security;
 <!--
     This module will handle the requirements for the security module.
     Note that NONE of these functions will close any connections passed

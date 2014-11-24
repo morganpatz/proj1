@@ -79,6 +79,32 @@ public class EditForm extends HttpServlet {
 
 		PrintWriter out = response.getWriter();
 
+		String userid = "";
+		Cookie login_cookie = null;
+		Cookie cookie = null;
+		Cookie[] cookies = null;
+		// Get an array of cookies associated with this domain
+		cookies = request.getCookies();
+		// If any cookies were found, see if any of them contain a valid login.
+		if (cookies != null) {
+			for (int i = 0; i < cookies.length; i++) {
+				cookie = cookies[i];
+				// out.println(cookie.getName()+"<br>");
+				// However, we only want one cookie, the one whose name matches
+				// the
+				// userid that has logged in on this browser.
+				if (i != 0 && userid == "") {
+					userid = cookie.getName();
+				}
+			}
+		}
+		// If no login was detected, redirect the user to the login page.
+		if (userid == "") {
+			out.println("<a href=login.jsp>Please login to access this site.</a>");
+		}
+		// Else, we have a valid session.
+		else {
+
 		out.println("<html><body><head><title>Edit Image</title></head><body ><P>");
 		out.println("<form name=\"EditForm\" method=\"POST\" action=\"EditImage?" + photo_id + "\"><table>");
 		out.println("<tr><td> Subject: <td> <input type=text size=20 name=subject>");
@@ -87,6 +113,7 @@ public class EditForm extends HttpServlet {
 			+" src=\"http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy-mm-dd\"></script></script> &nbsp;</td></tr>");
 		out.println("<tr><td alian = right>  Description: </td><td alian = left> <textarea name=description rows=10 cols=30></textarea></td></tr>");
 		out.println("<tr><td alian = center colspan=\"2\"><input type = submit value = \"Update Image\"></td></tr></form></table></body></html>");
+		}
 
 	}
 	

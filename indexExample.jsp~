@@ -168,26 +168,58 @@
           
             if(!(request.getParameter("query").equals("")))
             {
-              PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), subject, description FROM images WHERE CONTAINS (description, '" + request.getParameter("query") + "', 1) > 0 order by score(1), description");
-              //doSearch.setString(1, request.getParameter("query"));
-              ResultSet rset2 = doSearch.executeQuery();
+              PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), score(2), score(3), subject, description, place FROM images WHERE CONTAINS (description, '" + request.getParameter("query") + "', 1) > 0 OR CONTAINS (subject, '" + request.getParameter("query") + "', 2) > 0 OR CONTAINS (place, '" + request.getParameter("query") + "', 3) > 0");
+
+	      ResultSet rset2 = doSearch.executeQuery();
+		
+
+
+
+
+		
               out.println("<table border=1>");
               out.println("<tr>");
               out.println("<th>Subject</th>");
               out.println("<th>Description</th>");
-              out.println("<th>Score</th>");
+              out.println("<th>Place</th>");
+              out.println("<th>SubjectScore</th>");
+              out.println("<th>DescriptionScore</th>");
+              out.println("<th>PlaceScore</th>");
+	      out.println("<th>RANK</th>");
               out.println("</tr>");
               while(rset2.next())
               {
+
+		int descRank = Integer.parseInt(rset2.getObject(1).toString());
+		int subRank = Integer.parseInt(rset2.getObject(2).toString());
+		int locRank = Integer.parseInt(rset2.getObject(3).toString());
+
+		subRank = subRank * 6;
+		locRank = locRank * 3;
+
+		int rank = descRank + subRank + locRank;
+
                 out.println("<tr>");
                 out.println("<td>"); 
-                out.println(rset2.getString(2));
+                out.println(rset2.getString(4));
                 out.println("</td>");
                 out.println("<td>"); 
-                out.println(rset2.getString(3)); 
+                out.println(rset2.getString(5)); 
                 out.println("</td>");
                 out.println("<td>");
+                out.println(rset2.getString(6));
+                out.println("</td>");
+                out.println("<td>"); 
                 out.println(rset2.getObject(1));
+                out.println("</td>");
+                out.println("<td>"); 
+                out.println(rset2.getObject(2)); 
+                out.println("</td>");
+                out.println("<td>");
+                out.println(rset2.getObject(3));
+                out.println("</td>");
+                out.println("<td>");
+                out.println(rank);
                 out.println("</td>");
                 out.println("</tr>");
               } 
