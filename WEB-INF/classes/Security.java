@@ -77,6 +77,37 @@ public class Security {
 		return 1;
 	}
 
+
+    /*
+     * A function that finds the corresponding group ID from a given
+     * combination of group name and user ID. Returns the group_id inside
+     * a string if a matching group_id is found, otherwise it returns an empty
+     * string. Usage:
+     * --userid: the user_id of the user who requested this action
+     * --groupname: the name of the group specified by the user
+     * --conn: a connection to an sql database
+     */
+    public String find_group_id(String userid, String groupname, Connection conn){
+	// Create the query to figure out what the group ID is for the
+	// supplied group name.
+	String find_group = "select GROUP_ID from GROUPS where USER_NAME == '"
+	    + userid + "' " + "and GROUP_NAME == '" + groupname + "'";
+	String gid = query_value(find_group, conn);
+	
+	// Now, if we do not find a matching group ID, we tell the user
+	// that there does not exist a group with the given name that
+	// is made by the user.
+	if (gid == "") {
+	    System.out
+		.println("You have not created a group with that name.<br>");
+	    return "";
+	}
+	
+	// If we got to here, we know that the group is valid.
+	// Return the group ID.
+	return gid;	
+    }
+
 	/*
 	 * A function that contains the logic that applies to both adding and
 	 * removing members from a group. It's called by add_friend and
@@ -113,25 +144,9 @@ public class Security {
 			return "";
 		}
 
-		// Else, we continue on. Next, we must figure out which group
-		// we are updating.
-		String find_group = "select g.GROUP_ID from GROUPS g, USERS u "
-				+ "where g.USER_NAME == u.USER_NAME and u.USER_NAME == '"
-				+ userid + "' " + "and g.GROUP_NAME == '" + groupname + "'";
-		String gid = query_value(find_group, conn);
-
-		// Now, if we do not find a matching group ID, we tell the user
-		// that there does not exist a group with the given name that
-		// is made by the user.
-		if (gid == "") {
-			System.out
-					.println("You have not created a group with that name.<br>");
-			return "";
-		}
-
-		// If we got to here, we know that the group is valid, and that
-		// the supplied friend ID is not the user's own ID and exists
-		// in the database.
+		// Else, we know that the supplied user and friend IDs are both
+		// valid. Next, we must figure out which group we are updating.
+		String gid = find_group_id(userid, groupname, conn);
 		return gid;
 	}
 
