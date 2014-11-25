@@ -1,0 +1,5 @@
+CREATE INDEX subindex ON images(subject) INDEXTYPE IS CTXSYS.CONTEXT;
+CREATE INDEX locindex ON images(place) INDEXTYPE IS CTXSYS.CONTEXT;
+CREATE INDEX descindex ON images(description) INDEXTYPE IS CTXSYS.CONTEXT;
+
+

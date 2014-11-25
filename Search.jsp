@@ -96,40 +96,14 @@
 	      PreparedStatement dropTable = m_con.prepareStatement("DROP TABLE imageRank");
 	      dropTable.executeQuery();
 
-	      PreparedStatement updateRank;
 
               PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), score(2), score(3), subject, description, place, photo_id FROM images WHERE CONTAINS (description, '" + request.getParameter("query") + "', 1) > 0 OR CONTAINS (subject, '" + request.getParameter("query") + "', 2) > 0 OR CONTAINS (place, '" + request.getParameter("query") + "', 3) > 0");
 
 	      ResultSet rset2 = doSearch.executeQuery();
 
-              out.println("<table border=1>");
-              out.println("<tr>");
-              out.println("<th>Rank</th>");
 
-              while(rset2.next())
-              {
-
-		int descRank = Integer.parseInt(rset2.getObject(1).toString());
-		int subRank = Integer.parseInt(rset2.getObject(2).toString());
-		int locRank = Integer.parseInt(rset2.getObject(3).toString());
-
-		String photo_id = rset2.getString(7);
-
-		subRank = subRank * 6;
-		locRank = locRank * 3;
-
-		int rank = descRank + subRank + locRank;
-
-		updateRank = " 
-
-		
-		
-		out.println("<td>");
-                out.println(rank);
-                out.println("</td>");
-                out.println("</tr>");
-              } 
-              out.println("</table>");
+             
+              
 
 	
 

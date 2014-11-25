@@ -87,6 +87,9 @@
         out.println("</table>");
         stmt.close();     
        
+	} 
+      catch(Exception e)
+      { 
       
     %>
     
@@ -158,7 +161,7 @@
         </tr>
       </table>
       <%
-        
+        try {
           if (request.getParameter("search") != null)
           {
           
@@ -168,9 +171,11 @@
           
             if(!(request.getParameter("query").equals("")))
             {
-              PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), score(2), score(3), subject, description, place FROM images WHERE CONTAINS (description, '" + request.getParameter("query") + "', 1) > 0 OR CONTAINS (subject, '" + request.getParameter("query") + "', 2) > 0 OR CONTAINS (place, '" + request.getParameter("query") + "', 3) > 0");
+              PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), score(2), score(3), subject, description, place, photo_id FROM images WHERE CONTAINS (description, '" + request.getParameter("query") + "', 1) > 0 OR CONTAINS (subject, '" + request.getParameter("query") + "', 2) > 0 OR CONTAINS (place, '" + request.getParameter("query") + "', 3) > 0");
 
 	      ResultSet rset2 = doSearch.executeQuery();
+
+	    
 		
 
 
@@ -182,6 +187,7 @@
               out.println("<th>Subject</th>");
               out.println("<th>Description</th>");
               out.println("<th>Place</th>");
+              out.println("<th>Photo ID</th>");
               out.println("<th>DescScore</th>");
               out.println("<th>SubScore</th>");
               out.println("<th>PlaceScore</th>");
@@ -198,6 +204,10 @@
 		locRank = locRank * 3;
 
 		int rank = descRank + subRank + locRank;
+		int photo_id = Integer.parseInt(rset2.getString(7));
+
+		PreparedStatement doRank = m_con.prepareStatement("INSERT INTO rankImage VALUES(" + photo_id + ", " + rank + ")");
+		doRank.executeQuery();
 
                 out.println("<tr>");
                 out.println("<td>"); 
@@ -208,6 +218,9 @@
                 out.println("</td>");
                 out.println("<td>");
                 out.println(rset2.getString(6));
+                out.println("</td>");
+                out.println("<td>");
+                out.println(rset2.getString(7));
                 out.println("</td>");
                 out.println("<td>"); 
                 out.println(rset2.getObject(1));
@@ -224,11 +237,17 @@
                 out.println("</tr>");
               } 
               out.println("</table>");
+              out.println("<input type=submit value=\"Continue\" name=\"SearchBrowse\">");
             }
             else
             {
               out.println("<br><b>Please enter text for quering</b>");
-            }            
+            }  
+	
+
+
+				
+		}          
           }
           m_con.close();
         }

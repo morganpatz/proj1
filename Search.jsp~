@@ -92,13 +92,15 @@
           
             if(!(request.getParameter("query").equals("")))
             {
+
+	      PreparedStatement dropTable = m_con.prepareStatement("DROP TABLE imageRank");
+	      dropTable.executeQuery();
+
+
               PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), score(2), score(3), subject, description, place, photo_id FROM images WHERE CONTAINS (description, '" + request.getParameter("query") + "', 1) > 0 OR CONTAINS (subject, '" + request.getParameter("query") + "', 2) > 0 OR CONTAINS (place, '" + request.getParameter("query") + "', 3) > 0");
 
 	      ResultSet rset2 = doSearch.executeQuery();
 
-              out.println("<table border=1>");
-              out.println("<tr>");
-              out.println("<th>Rank</th>");
 
               while(rset2.next())
               {
@@ -113,13 +115,16 @@
 		locRank = locRank * 3;
 
 		int rank = descRank + subRank + locRank;
-		
-		out.println("<td>");
-                out.println(rank);
-                out.println("</td>");
-                out.println("</tr>");
+
+		PreparedStatement updateRank = m_con.prepareStatement("INSERT INTO imageRank VALUES (" + photo_id + ", " + rank +  ")");
+                updateRank.executeQuery();
+
+	  	out.println("<br><b>Entered Photo ID: " + photo_id + " and RANK: " + rank + "</b>");
+                 
+
+
               } 
-              out.println("</table>");
+              
 
 	
 
