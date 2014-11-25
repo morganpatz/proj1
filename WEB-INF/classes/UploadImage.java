@@ -177,42 +177,55 @@ public class UploadImage extends HttpServlet {
 
 				response_message = response_message + "photoid";
 
-				int permissionValue = 1;
+				int permissionValue = 2;
 
 				if (permission.equals("everyone")) { 
                                     permissionValue = 1;
                                 } else if (permission.equals("useronly")) {
-                                    permissionValue = 0;                                    
+                                    permissionValue = 2;                                    
                                 } else if (permission.equals("group")) {
-                                    permissionValue = 2;                                     
-                                }
-
-				command = "INSERT INTO images VALUES (" + photo_id
-						+ ", '" + userid + "', " + permissionValue + ", '" + subject + "', '" + location
-						+ "', to_date('" + date + "', 'YYYY-MM-DD'), '"
-						+ description + "', empty_blob(), empty_blob())";
-				response_message = response_message + "query";
-
-				stmt.execute(command);
-				response_message = response_message + "executed";
-
-				stmt1 = conn
-						.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = "
+				    //Set permission value to 0 to indicate no
+				    //valid group in the case the user does not
+				    //supply a valid group ID.
+                                    permissionValue = 0;
+				    //What we actually want is the group ID
+				    String groupid = Security.find_group_id(username, groupname, conn);
+				    //If a matching group ID is found, add it.
+				    if(groupid != "")
+					permissionValue = Integer.parseInt(groupid);
+				    
+				}
+				
+				//If a valid permitted value was supplied,
+				//perform the insert statement.
+				if(pemissionValue != 0){
+				    command = "INSERT INTO images VALUES (" + photo_id
+					+ ", '" + userid + "', " + permissionValue + ", '" + subject + "', '" + location
+					+ "', to_date('" + date + "', 'YYYY-MM-DD'), '"
+					+ description + "', empty_blob(), empty_blob())";
+				    response_message = response_message + "query";
+				    
+				    stmt.execute(command);
+				    response_message = response_message + "executed";
+				    
+				    stmt1 = conn
+					.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = "
+							  + photo_id);
+				    response_message = response_message + "update";
+				    stmt1.setBinaryStream(1, instream);
+				    stmt1.executeUpdate();
+				    response_message = response_message + "update1";
+				    
+				    PreparedStatement stmt2 = conn
+					.prepareStatement("UPDATE images SET thumbnail = photo WHERE photo_id = "
 								+ photo_id);
-				response_message = response_message + "update";
-				stmt1.setBinaryStream(1, instream);
-				stmt1.executeUpdate();
-				response_message = response_message + "update1";
-
-				PreparedStatement stmt2 = conn
-						.prepareStatement("UPDATE images SET thumbnail = photo WHERE photo_id = "
-								+ photo_id);
-				stmt2.executeUpdate();
-				response_message = response_message + "update2";
-
-				response_message = "File Uploaded!";
-			} catch (Exception e) {
-				response_message = response_message + "uh oh";
+				    stmt2.executeUpdate();
+				    response_message = response_message + "update2";
+				    
+				    response_message = "File Uploaded!";
+				} catch (Exception e) {
+				    response_message = response_message + "uh oh";
+				}
 			}
 			try {
 				// Output response to the client
