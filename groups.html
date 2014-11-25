@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <title>Manage Groups</title>
+  </head>
+  <body>
+    <style>
+      .conditional_form_part {
+      display: none;
+      }
+      
+      .conditional_form_part_activator:checked + .conditional_form_part {
+      display: block;
+      }
+    </style>
+
+    <tr><td alain = right>     Manage your Groups here:<br>
+	Create a New Group <input class="conditional_form_part_activator" name = "permission" type="radio" id="group" value="group">
+	<div class="conditional_form_part">
+          <form name="create-group" method="POST" action="Groups">Group Name: <input class="groupname" type=text size=20 name="groupName"><br>
+	    <tr><td alian = center colspan="2"><input type = submit name = "aSubmit" value = Create&nbsp;Group></td></tr>
+</form></div><p>&nbsp;</p>
+	
+	Add a Friend to a Group <input class="conditional_form_part_activator" name = "permission" type="radio" id="group" value="group">
+	<div class="conditional_form_part">
+          <form name="add-friend" method="POST" action="Groups">Friend's ID: <input class="friendid" type=text size=20 name="friendID"><br>
+	    Group Name: <input class="groupname" type=text size=20 name="groupName"><br>
+	    <tr><td alian = center colspan="2"><input type = submit name = "bSubmit" value = Add&nbsp;Friend></td></tr>
+</form></div><p>&nbsp;</p>
+	
+	Remove a Friend from a Group<input class="conditional_form_part_activator" name = "permission" type="radio" id="group" value="group">
+	<div class="conditional_form_part">
+          <form name="remove-friend" method="POST" action="Groups">Friend's ID: <input class="friendid" type=text size=20 name="friendID"><br>
+	    Group Name: <input class="groupname" type=text size=20 name="groupName"><br>
+	    <tr><td alian = center colspan="2"><input type = submit name = "cSubmit" value = Remove&nbsp;Friend></td></tr></form>
+</form></td>
+</select> 
+</div></tr></td>
+</body>
+</html>
