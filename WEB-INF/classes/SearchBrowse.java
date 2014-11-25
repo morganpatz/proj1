@@ -71,8 +71,7 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 			out.println("<a href=\"PictureBrowse\">Back to Home</a>");
 			out.println("</P>");
 			out.println("<center>");
-			out.println("<P><a href=\"upload_image.html\"> Upload Image </a>");
-			out.println("<h3>The List of Images </h3>");
+			out.println("<h3>The List of Images From Search</h3>");
 
 			/*
 			 * to execute the given query

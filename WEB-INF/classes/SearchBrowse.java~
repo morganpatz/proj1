@@ -66,9 +66,9 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 			out.println("</head>");
 			out.println("<body bgcolor=\"#000000\" text=\"#cccccc\" >");
 			out.println("<left>");
-			out.println("<a href=\"PictureBrowse\">Back to Search</a>");
+			out.println("<a href=\"indexExample.jsp\">Back to Search</a>");
 			out.println("<P ALIGN=\"right\">");
-			out.println("<a href=\"indexExample.jsp\">Log out</a>");
+			out.println("<a href=\"PictureBrowse\">Back to Home</a>");
 			out.println("</P>");
 			out.println("<center>");
 			out.println("<P><a href=\"upload_image.html\"> Upload Image </a>");
