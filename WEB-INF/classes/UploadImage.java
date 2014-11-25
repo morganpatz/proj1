@@ -83,6 +83,8 @@ public class UploadImage extends HttpServlet {
 		String location = null;
 		String date = null;
 		String description = null;
+		String permission = null;
+		String groupName = null;
 		File photo = null;
 		Date sqlDate = null;
 		String command = "";
@@ -142,6 +144,10 @@ public class UploadImage extends HttpServlet {
 						date = fieldvalue;
 					} else if (fieldname.equals("description")) {
 						description = fieldvalue;
+					} else if (fieldname.equals("permission")) {
+						permission = fieldvalue;
+					} else if (fieldname.equals("groupName")) {
+						groupName = fieldvalue;
 					}
 					item = (FileItem) i.next();
 					response_message = response_message + fieldname;
@@ -171,8 +177,18 @@ public class UploadImage extends HttpServlet {
 
 				response_message = response_message + "photoid";
 
+				int permissionValue = 1;
+
+				if (permission.equals("everyone")) { 
+                                    permissionValue = 1;
+                                } else if (permission.equals("useronly")) {
+                                    permissionValue = 0;                                    
+                                } else if (permission.equals("group")) {
+                                    permissionValue = 2;                                     
+                                }
+
 				command = "INSERT INTO images VALUES (" + photo_id
-						+ ", '" + userid + "', 0, '" + subject + "', '" + location
+						+ ", '" + userid + "', " + permissionValue + ", '" + subject + "', '" + location
 						+ "', to_date('" + date + "', 'YYYY-MM-DD'), '"
 						+ description + "', empty_blob(), empty_blob())";
 				response_message = response_message + "query";

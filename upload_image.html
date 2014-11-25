@@ -1,28 +1,36 @@
-<html>
-<body>
-<head>
-<title>File Upload</title>
-</head>
-<body >
-<h3>Please Upload An Image</h3>
-<P>
+<html><body><head><title>File Upload</title></head><body ><h3>Please Upload An Image</h3><P>
 
+<style>
+  .conditional_form_part {
+    display: none;
+  }
+
+  .conditional_form_part_activator:checked + .conditional_form_part {
+    display: block;
+  }
+</style>
 
 <form name="upload-image" method="POST" enctype="multipart/form-data" action="UploadImage">
-<table>
-<tr>
-<td> Subject: 
-<td> <input type=text size=20 name=subject> 
+<table><tr><td> Subject: <td> <input type=text size=20 name=subject> 
 
-<tr><td alian = right>  Location: </td>
-<td alian = left> <input type=text size=20 name=location></td></tr>
+<tr><td alian = right>  Location: </td><td alian = left> <input type=text size=20 name=location></td></tr>
 
-<tr><td alian = right>  Date: </td>
-<td alian = left> <script type="text/javascript"
+<tr><td alian = right>  Date: </td><td alian = left> <script type="text/javascript"
 src="http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy-mm-dd"></script></script> &nbsp;</td></tr>
 
-<tr><td alian = right>  Description: </td>
-<td alian = left> <textarea name=description rows=10 cols=30></textarea></td></tr>
+<tr><td alian = right>  Description: </td><td alian = left> <textarea name=description rows=10 cols=30></textarea></td></tr>
+
+
+<tr><td alain = right>     Who Can See This Photo:
+<td>Everyone <input class="everyone" name = "permission" type="radio" id="everyone" value="everyone">
+    Only Me <input class="useronly" name = "permission" type="radio" id="useronly" value="useronly">
+    Specific Group <input class="conditional_form_part_activator" name = "permission" type="radio" id="group" value="group">
+
+    <div class="conditional_form_part">
+         Group Name: <input class="groupname" type=text size=20 name="groupName"></td>
+</select> 
+    </div></tr></td>
+
 
 <tr><td alian = right>  File Path: </td>
 <td alian = left> <input name="file-path" type="file" size="30" ></td></tr>
@@ -32,14 +40,18 @@ src="http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy-mm-dd"></script>
 </form>
 </table>
 
+<style>
+  .conditional_form_part {
+    display: none;
+  }
+
+  .conditional_form_part_activator:checked + .conditional_form_part {
+    display: block;
+  }
+</style>
+
+
 </body>
 </html>
-
-
-
-
-
-
-
 
 

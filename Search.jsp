@@ -92,6 +92,12 @@
           
             if(!(request.getParameter("query").equals("")))
             {
+
+	      PreparedStatement dropTable = m_con.prepareStatement("DROP TABLE imageRank");
+	      dropTable.executeQuery();
+
+	      PreparedStatement updateRank;
+
               PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), score(2), score(3), subject, description, place, photo_id FROM images WHERE CONTAINS (description, '" + request.getParameter("query") + "', 1) > 0 OR CONTAINS (subject, '" + request.getParameter("query") + "', 2) > 0 OR CONTAINS (place, '" + request.getParameter("query") + "', 3) > 0");
 
 	      ResultSet rset2 = doSearch.executeQuery();
@@ -113,6 +119,10 @@
 		locRank = locRank * 3;
 
 		int rank = descRank + subRank + locRank;
+
+		updateRank = " 
+
+		
 		
 		out.println("<td>");
                 out.println(rank);

@@ -26,6 +26,8 @@ public class PictureBrowse extends HttpServlet implements SingleThreadModel {
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse res)
 			throws ServletException, IOException {
+
+		Security sec = new Security();
 		
 		PrintWriter out = res.getWriter();
 		String userid = "";
@@ -85,11 +87,14 @@ public class PictureBrowse extends HttpServlet implements SingleThreadModel {
 
 				while (rset.next()) {
 					p_id = (rset.getObject(1)).toString();
+					
+					if (sec.view_allowed(userid, p_id, conn) == 1) {
 
-					// specify the servlet for the image
-					out.println("<a href=\"GetBigPic?big" + p_id + "\">");
-					// specify the servlet for the thumbnail
-					out.println("<img src=\"GetOnePic?" + p_id + "\"></a>");
+						// specify the servlet for the image
+						out.println("<a href=\"GetBigPic?big" + p_id + "\">");
+						// specify the servlet for the thumbnail
+						out.println("<img src=\"GetOnePic?" + p_id + "\"></a>");
+					}
 
 				}
 				stmt.close();

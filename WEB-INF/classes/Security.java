@@ -371,8 +371,7 @@ public class Security {
 		}
 
 		// If not, we next check the permission setting of the image.
-		String permission_check = "select PERMITTED from IMAGES "
-				+ "where PHOTO_ID = '" + photoid;
+		String permission_check = "select PERMITTED from IMAGES where PHOTO_ID = " + photoid;
 		String image_permission = query_value(permission_check, conn);
 
 		// If the image permission is set to 1 (public), grant access

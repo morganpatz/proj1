@@ -121,9 +121,7 @@
               } 
               out.println("</table>");
 
-		//PreparedStatement rankInsert = m_con.prepareStatement("INSERT INTO rankImages (photo_id, rank) VALUES (" + photo_id + ", " + rank + ")");
-		//rankInsert.executeQuery(); 
-
+	
 
            
             }
