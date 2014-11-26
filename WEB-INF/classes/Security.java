@@ -40,6 +40,7 @@ public class Security {
 		}
 
 		// Return the resulting string.
+		System.out.println(result_string);
 		return result_string;
 	}
 
@@ -53,30 +54,23 @@ public class Security {
 	public int update_value(String update, Connection conn) {
 		// Attempt to execute the update statement.
 		Statement stmt = null;
+		int result = 0;
+		boolean bresult = false;
 		try {
 			stmt = conn.createStatement();
-			stmt.executeUpdate(update);
-			conn.commit();
+			result = stmt.executeUpdate(update);
 		}
-		// If something went wrong during the update, attempt to
-		// rollback the changes.
-		catch (SQLException sqle) {
-			try {
-				conn.rollback();
-				return -1;
-			}
-
-			// If the rollback fails, report that.
-			catch (SQLException sqle1) {
-				System.out.println("<hr>" + sqle1.getMessage()
-						   + "<hr>");
-				return -1;
-			}
+		// If something went wrong during the update, report it.
+		catch (SQLException sqle1) {
+		    System.out.println("<hr>" + sqle1.getMessage() + "<hr>");
+		    return 0;
 		}
 		// If we got here, the update was a success!
 		return 1;
 	}
 
+
+    
 
     /*
      * A function that finds the corresponding group ID from a given
@@ -90,8 +84,8 @@ public class Security {
     public String find_group_id(String userid, String groupname, Connection conn){
 	// Create the query to figure out what the group ID is for the
 	// supplied group name.
-	String find_group = "select GROUP_ID from GROUPS where USER_NAME == '"
-	    + userid + "' " + "and GROUP_NAME == '" + groupname + "'";
+	String find_group = "select GROUP_ID from GROUPS where USER_NAME = '"
+	    + userid + "' " + "and GROUP_NAME = '" + groupname + "'";
 	String gid = query_value(find_group, conn);
 	
 	// Now, if we do not find a matching group ID, we tell the user
@@ -133,12 +127,17 @@ public class Security {
 
 		// Next, let's make sure the user has submitted a valid friend
 		// ID.
-		String friend_check = "select USER_ID from USERS where " + "USERID = '"
-				+ friendid + "'";
+		String friend_check = "select USER_NAME from USERS where "
+		    + "USER_NAME = '" + friendid + "'";
+		System.out.println(friend_check);
 		String valid_friend = query_value(friend_check, conn);
 
+		System.out.println("friendid: "+friendid);
+		System.out.println("valid_friend: "+valid_friend);
+		
+
 		// If the supplied friend ID is invalid, reject the update.
-		if (friendid != valid_friend || valid_friend == "") {
+		if (!friendid.equals(valid_friend) || valid_friend.equals("")) {
 			System.out
 					.println("Invalid friend ID supplied, please try again.<br>");
 			return "";
@@ -236,11 +235,14 @@ public class Security {
 		new_id = new_id + 1;
 		String group_id = Integer.toString(new_id);
 
-		// Now we have the neccessary information to create a new group
-		String create_group = "INSERT INTO GROUPS VALUES(" + group_id + ", '"
-				+ userid + "', '" + groupname + "', 'sysdate')";
+		System.out.println("New group ID is "+group_id);
 
-		int attempt_insert = update_value(create_group, conn);
+		// Now we have the neccessary information to create a new group
+		String new_group = "INSERT INTO GROUPS VALUES(" + group_id + ", '"
+				+ userid + "', '" + groupname + "', sysdate)";
+		System.out.println(new_group);
+
+		int attempt_insert = update_value(new_group, conn);
 		if (attempt_insert == 1)
 			System.out.println("New group created!<br>");
 		else
@@ -291,7 +293,7 @@ public class Security {
 		// and an existing friend ID.
 		String groupid = "";
 		groupid = validate_group_update(userid, groupname, friendid, conn);
-		if (groupid == "") {
+		if (groupid.equals("")) {
 			return 0;
 		}
 
@@ -303,7 +305,7 @@ public class Security {
 		String redundant_friend = query_value(redundancy_check, conn);
 
 		// If the friend is not in the group, we can add the friend.
-		if (friendid != redundant_friend) {
+		if (!friendid.equals(redundant_friend)) {
 			String insert_friend = "insert into group_lists (GROUP_ID, FRIEND_ID, "
 					+ "DATE_ADDED) values ('"
 					+ groupid
@@ -333,7 +335,7 @@ public class Security {
 	        // group name and an existing friend ID.
 		String groupid = "";
 		groupid = validate_group_update(userid, groupname, friendid, conn);
-		if (groupid == "") {
+		if (groupid.equals("")) {
 			return 0;
 		}
 
@@ -346,9 +348,9 @@ public class Security {
 
 		// If the friend is in the group, we can remove the friend.
 		if (friendid.equals(is_present)) {
-			String remove_friend = "delete from group_lists where FRIEND_ID = '"
+			String delete_friend = "delete from group_lists where FRIEND_ID = '"
 					+ friendid + "'";
-			int attempt_delete = update_value(remove_friend, conn);
+			int attempt_delete = update_value(delete_friend, conn);
 			if (attempt_delete == 1)
 				System.out.println(friendid + "has been removed from "
 						+ groupname + ".<br>");

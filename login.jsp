@@ -125,8 +125,8 @@
        { out.println("<p><b>Either your userName or Your password is inValid!</b></p>");
        //Prompt the user to try again, or register.
        out.println("<form method=post action=login.jsp>");
-       out.println("UserName: <input type=text name=USERID maxlength=20><br>");
-       out.println("Password: <input type=password name=PASSWD maxlength=20><br>");
+       out.println("UserName: <input type=text name=USERID maxlength=24><br>");
+       out.println("Password: <input type=password name=PASSWD maxlength=24><br>");
        out.println("<input type=submit name=bSubmit value=Submit>");
        out.println("</form>");
        out.println("New to this site? ");
@@ -144,8 +144,8 @@
        else
        {
        out.println("<form method=post action=login.jsp>");
-       out.println("UserName: <input type=text name=USERID maxlength=20><br>");
-       out.println("Password: <input type=password name=PASSWD maxlength=20><br>");
+       out.println("UserName: <input type=text name=USERID maxlength=24><br>");
+       out.println("Password: <input type=password name=PASSWD maxlength=24><br>");
        out.println("<input type=submit name=bSubmit value=Submit>");
        out.println("</form>");
        //Ask the user to register
