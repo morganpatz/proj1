@@ -74,6 +74,8 @@ public class PictureBrowse extends HttpServlet implements SingleThreadModel {
 			out.println("</P>");
 			out.println("<center>");
 			out.println("<P><a href=\"upload_image.html\"> Upload Image </a>");
+			out.println("<center>");
+			out.println("<P><a href=\"TopBrowse\"> Top 5 Images </a>");
 			out.println("<h3>The List of Images </h3>");
 
 			/*
@@ -115,8 +117,8 @@ public class PictureBrowse extends HttpServlet implements SingleThreadModel {
 	 */
 	private Connection getConnected() throws Exception {
 
-		String username = "patzelt";
-		String password = "Chocolate1";
+		String username = "amlee1";
+		String password = "splplus719";
 		String drivername = "oracle.jdbc.driver.OracleDriver";
 		String dbstring = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
 

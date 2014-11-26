@@ -91,7 +91,6 @@ public class GetBigPic extends HttpServlet implements SingleThreadModel {
 
 			PreparedStatement stmtUpdate = conn.prepareStatement("UPDATE imageCount SET imgCount = imgCount + 1 WHERE photo_id = " + photo_id);
 
-			out.print(stmtUpdate.toString());
 			//stmtUpdate.executeUpdate();
 
 			response_message = response_message + "imgCount";
@@ -139,8 +138,8 @@ public class GetBigPic extends HttpServlet implements SingleThreadModel {
 	 */
 	private static Connection getConnected() throws Exception {
 
-		String username = "patzelt";
-		String password = "Chocolate1";
+		String username = "amlee1";
+		String password = "splplus719";
 		String drivername = "oracle.jdbc.driver.OracleDriver";
 		String dbstring = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
 

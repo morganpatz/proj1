@@ -14,7 +14,7 @@ import java.net.*;
  * @author Li-Yan Yuan
  * 
  */
-public class SearchBrowse extends HttpServlet implements SingleThreadModel {
+public class TopBrowse extends HttpServlet implements SingleThreadModel {
 
 	/**
 	 * Generate and then send an HTML file that displays all the thermonail
@@ -62,29 +62,28 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 
 			out.println("<html>");
 			out.println("<head>");
-			out.println("<title> Search Results </title>");
+			out.println("<title> Top 5 Images </title>");
 			out.println("</head>");
 			out.println("<body bgcolor=\"#000000\" text=\"#cccccc\" >");
-			out.println("<left>");
-			out.println("<a href=\"indexExample.jsp\">Back to Search</a>");
 			out.println("<P ALIGN=\"right\">");
 			out.println("<a href=\"PictureBrowse\">Back to Home</a>");
 			out.println("</P>");
 			out.println("<center>");
-			out.println("<h3>The List of Images From Search</h3>");
+			out.println("<h3>The Top 5 Images</h3>");
 
 			/*
 			 * to execute the given query
 			 */
 			try {
-				String query = "SELECT photo_id FROM rankImage ORDER BY rank DESC";
+				String query = "SELECT photo_id FROM imageCount ORDER BY imgCount DESC";
 
 				Connection conn = getConnected();
 				Statement stmt = conn.createStatement();
 				ResultSet rset = stmt.executeQuery(query);
 				String p_id = "";
+				int counter = 1;
 
-				while (rset.next()) {
+				while (rset.next() && counter <= 5) {
 					p_id = (rset.getObject(1)).toString();
 					
 					//if (sec.view_allowed(userid, p_id, conn) == 1) {
@@ -94,7 +93,9 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 						// specify the servlet for the thumbnail
 						out.println("<img src=\"GetOnePic?" + p_id + "\"></a>");
 					//}
+					counter++;
 
+				
 				}
 				stmt.close();
 				conn.close();
@@ -112,8 +113,8 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 	 */
 	private Connection getConnected() throws Exception {
 
-		String username = "patzelt";
-		String password = "Chocolate1";
+		String username = "amlee1";
+		String password = "splplus719";
 		String drivername = "oracle.jdbc.driver.OracleDriver";
 		String dbstring = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
 

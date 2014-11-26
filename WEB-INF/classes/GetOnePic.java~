@@ -56,20 +56,6 @@ public class GetOnePic extends HttpServlet
 	    Statement stmt = conn.createStatement();
 	    ResultSet rset = stmt.executeQuery(query);
 
-response.setContentType("image/gif");
-      InputStream in = photo.getBinaryStream();
-      int length = (int) photo.length();
-
-      int bufferSize = 1024;
-      byte[] buffer = new byte[bufferSize];
-
-      while ((length = in.read(buffer)) != -1) {
-        System.out.println("writing " + length + " bytes");
-        out.write(buffer, 0, length);
-      }
-
-      in.close();
-      out.flush();
 
 	    if ( rset.next() ) {
 		response.setContentType("image/jpeg");
