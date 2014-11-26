@@ -14,8 +14,8 @@
       String m_driverName = "oracle.jdbc.driver.OracleDriver";
       
       // User Supplied Log-in Information
-      String m_userName = "patzelt"; //supply username
-      String m_password = "Chocolate1"; //supply password
+      String m_userName = "amlee1"; //supply username
+      String m_password = "splplus719"; //supply password
       
       String addItemError = "";
 

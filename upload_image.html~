@@ -10,7 +10,7 @@
   }
 </style>
 
-<form name="upload-image" method="POST" enctype="multipart/form-data" action="UploadImage">
+<form name="upload-image" method="POST" enctype="multipart/form-data" action="UploadImage" multiple="multiple">
 <table><tr><td> Subject: <td> <input type=text size=20 name=subject> 
 
 <tr><td alian = right>  Location: </td><td alian = left> <input type=text size=20 name=location></td></tr>
@@ -27,7 +27,7 @@ src="http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy-mm-dd"></script>
     Specific Group <input class="conditional_form_part_activator" name = "permission" type="radio" id="group" value="group">
 
     <div class="conditional_form_part">
-         Group Name: <input class="groupname" type=text size=20 name=groupName></td>
+         Group Name: <input class="groupname" type=text size=20 name="groupName"></td>
 </select> 
     </div></tr></td>
 

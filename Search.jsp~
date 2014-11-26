@@ -3,28 +3,28 @@
 <html>
   <head>
   <meta http-equiv="content-type" content="text/html; charset=windows-1250">
-  <title>Search For Images</title>
+  <title>Search</title>
   </head>
   <body>
-    
+   
     
     <%
+      // Driver Information
       String m_url = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
       String m_driverName = "oracle.jdbc.driver.OracleDriver";
       
+      // User Supplied Log-in Information
       String m_userName = "patzelt"; //supply username
       String m_password = "Chocolate1"; //supply password
       
       String addItemError = "";
-      
+
       Connection m_con;
-      String createString;
-      String selectString = "select subject, place, description from images";
-      Statement stmt;
       
+
       try
       {
-      
+        // Create a connection
         Class drvClass = Class.forName(m_driverName);
         DriverManager.registerDriver((Driver)
         drvClass.newInstance());
@@ -41,34 +41,12 @@
       try
       {
 
-        
-        stmt = m_con.createStatement();
-        ResultSet rset = stmt.executeQuery(selectString);
-        out.println("<table border=1>");
-        out.println("<tr>");
-        out.println("<th>Subject</th>");
-        out.println("<th>Place</th>");
-	out.println("<th>Description</th>");
-        out.println("</tr>"); 
-        while(rset.next()) { 
-          out.println("<tr>");
-          out.println("<td>"); 
-          out.println(rset.getString(1));
-          out.println("</td>");
-          out.println("<td>"); 
-          out.println(rset.getString(2)); 
-          out.println("</td>");
-	  out.println("<td>"); 
-          out.println(rset.getString(3)); 
-          out.println("</td>");
-          out.println("</tr>"); 
-        } 
-        out.println("</table>");
-        stmt.close();     
-       
       
     %>
     
+
+    <b><%=addItemError%></b><br>
+    <form name=insertData method=post action=Search.jsp> 
     
       Query the database to see relevant items
       <table>
@@ -77,12 +55,12 @@
             <input type=text name=query>
           </td>
           <td>
-            <input type=submit value="Search" name="Search">
+            <input type=submit value="Search" name="search">
           </td>
         </tr>
       </table>
       <%
-        
+
           if (request.getParameter("search") != null)
           {
           
@@ -93,8 +71,12 @@
             if(!(request.getParameter("query").equals("")))
             {
 
-	      PreparedStatement dropTable = m_con.prepareStatement("DROP TABLE imageRank");
-	      dropTable.executeQuery();
+	      PreparedStatement dropRank = m_con.prepareStatement("DROP TABLE rankImage");
+	      dropRank.executeQuery();
+
+	      PreparedStatement createRank = m_con.prepareStatement("CREATE TABLE rankImage (photo_id int, rank int, PRIMARY KEY(photo_id), FOREIGN KEY(photo_id) REFERENCES images)");
+	      createRank.executeQuery();
+
 
 
               PreparedStatement doSearch = m_con.prepareStatement("SELECT score(1), score(2), score(3), subject, description, place, photo_id FROM images WHERE CONTAINS (description, '" + request.getParameter("query") + "', 1) > 0 OR CONTAINS (subject, '" + request.getParameter("query") + "', 2) > 0 OR CONTAINS (place, '" + request.getParameter("query") + "', 3) > 0");
@@ -109,40 +91,39 @@
 		int subRank = Integer.parseInt(rset2.getObject(2).toString());
 		int locRank = Integer.parseInt(rset2.getObject(3).toString());
 
-		String photo_id = rset2.getString(7);
-
 		subRank = subRank * 6;
 		locRank = locRank * 3;
 
 		int rank = descRank + subRank + locRank;
+		int photo_id = Integer.parseInt(rset2.getString(7));
 
-		PreparedStatement updateRank = m_con.prepareStatement("INSERT INTO imageRank VALUES (" + photo_id + ", " + rank +  ")");
-                updateRank.executeQuery();
+		PreparedStatement doRank = m_con.prepareStatement("INSERT INTO rankImage VALUES(" + photo_id + ", " + rank + ")");
+		doRank.executeQuery();
 
-	  	out.println("<br><b>Entered Photo ID: " + photo_id + " and RANK: " + rank + "</b>");
-                 
-
-
+               
               } 
-              
-
-	
-
-           
+              out.println("</table>");
+	      out.println("<P><a href=\"SearchBrowse\"> Continue </a>");
             }
             else
             {
               out.println("<br><b>Please enter text for quering</b>");
-            }            
-          }
+            }  
+	
+
+
+				
+		}          
+          
           m_con.close();
-        }
-        catch(SQLException e)
+        
+        }catch(Exception e1)
         {
           out.println("SQLException: " +
-          e.getMessage());
-			m_con.rollback();
+          e1.getMessage());
+
         }
+
       %>
     </form>
   </body>
