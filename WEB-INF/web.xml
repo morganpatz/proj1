@@ -96,7 +96,6 @@
     </servlet-mapping>
 
     <servlet>
-<<<<<<< HEAD
         <servlet-name>TopBrowse</servlet-name>
         <servlet-class>TopBrowse</servlet-class>
     </servlet>
@@ -105,7 +104,7 @@
         <url-pattern>/TopBrowse</url-pattern>
     </servlet-mapping>
 
-=======
+==  <servlet>
         <servlet-name>Groups</servlet-name>
         <servlet-class>Groups</servlet-class>
     </servlet>
@@ -113,7 +112,7 @@
         <servlet-name>Groups</servlet-name>
         <url-pattern>/Groups</url-pattern>
     </servlet-mapping>
->>>>>>> 122d6d20af5696de1082fca8e72188a267c5469b
+>>
 
 
 </web-app>
