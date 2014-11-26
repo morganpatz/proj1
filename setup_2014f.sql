@@ -4,12 +4,15 @@
  *              Fall, 2014
  *  Author:     Prof. Li-Yan Yuan
  */
+DROP TABLE imageCount;
+DROP TABLE rankImage;
 DROP TABLE images;
 DROP TABLE group_lists;
 DROP TABLE groups;
 DROP TABLE persons;
 DROP TABLE users;
 DROP SEQUENCE pic_id_sequence;
+
 
 CREATE TABLE users (
    user_name varchar(24),
@@ -76,6 +79,12 @@ CREATE TABLE rankImage (
    FOREIGN KEY(photo_id) REFERENCES images
 );
 
+CREATE TABLE imageCount (
+   photo_id   int, 
+   imgCount   int, 
+   PRIMARY KEY(photo_id), 
+   FOREIGN KEY(photo_id) REFERENCES images
+);
 
 
 
