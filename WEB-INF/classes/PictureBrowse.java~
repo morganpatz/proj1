@@ -88,7 +88,7 @@ public class PictureBrowse extends HttpServlet implements SingleThreadModel {
 				while (rset.next()) {
 					p_id = (rset.getObject(1)).toString();
 					
-					if (sec.view_allowed(userid, photo_id, conn) == 1) {
+					if (sec.view_allowed(userid, p_id, conn) == 1) {
 
 						// specify the servlet for the image
 						out.println("<a href=\"GetBigPic?big" + p_id + "\">");
