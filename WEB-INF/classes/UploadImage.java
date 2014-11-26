@@ -70,8 +70,8 @@ public class UploadImage extends HttpServlet {
 	private Connection conn = null;
 
 	// initial values
-	String username = "patzelt";
-	String password = "Chocolate1";
+	String username = "amlee1";
+	String password = "splplus719";
 	String drivername = "oracle.jdbc.driver.OracleDriver";
 	String dbstring = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
 
@@ -86,11 +86,13 @@ public class UploadImage extends HttpServlet {
 		String permission = null;
 		String groupName = null;
 		int permissionValue = 2;
+		String imgCount = "";
 		File photo = null;
 		Date sqlDate = null;
 		String command = "";
 		InputStream instream = null;
 		Statement stmt = null;
+		Statement stmt3 = null;
 		PreparedStatement stmt1 = null;
 		PrintWriter out = response.getWriter();
 
@@ -162,13 +164,14 @@ public class UploadImage extends HttpServlet {
 				instream = item.getInputStream();
 				response_message = response_message + fieldname;
 
-				// BufferedImage img = ImageIO.read(instream);
-				// BufferedImage thumbnail = shrink(img, 10);
+				//BufferedImage img = ImageIO.read(instream);
+				//BufferedImage thumbnail = shrink(img, 10);
 
 				// Connect to the database and create a statement
 				Connection conn;
 				conn = getConnected(drivername, dbstring, username, password);
 				stmt = conn.createStatement();
+				stmt3 = conn.createStatement();
 
 				/*
 				 * First, to generate a unique pic_id using an SQL sequence
@@ -178,7 +181,7 @@ public class UploadImage extends HttpServlet {
 				rset1.next();
 				photo_id = rset1.getInt(1);
 
-				response_message = response_message + "photoid";
+				response_message = response_message + photo_id;
 
 				if (permission.equals("everyone")) {
 					permissionValue = 1;
@@ -198,19 +201,42 @@ public class UploadImage extends HttpServlet {
 					}
 
 				}
+				response_message = response_message + "groups" + permissionValue + userid;
+
 
 				// If a valid permitted value was supplied,
 				// perform the insert statement.
 				if (permissionValue != 0) {
+
 					command = "INSERT INTO images VALUES (" + photo_id + ", '"
 							+ userid + "', " + permissionValue + ", '"
 							+ subject + "', '" + location + "', to_date('"
 							+ date + "', 'YYYY-MM-DD'), '" + description
 							+ "', empty_blob(), empty_blob())";
-					response_message = response_message + "query";
+					
+					
 
-					stmt.execute(command);
-					response_message = response_message + "executed";
+
+
+					response_message = photo_id + ", '"
+							+ userid + "', " + permissionValue + ", '"
+							+ subject + "', '" + location + "', "
+							+ date + ", '" + description;
+					
+					stmt3.execute(command);
+
+					response_message = response_message + "executed insert";
+
+
+					Statement imgStmt = conn.createStatement();
+
+					imgCount = "INSERT INTO imageCount VALUES (" + photo_id + ", 0)";
+					imgStmt.execute(imgCount);
+
+	
+
+
+					response_message = response_message + "executed imgCount";
 
 					stmt1 = conn
 							.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = "

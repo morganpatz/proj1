@@ -86,6 +86,19 @@ public class GetBigPic extends HttpServlet implements SingleThreadModel {
 				}
 			}
 
+			response_message = response_message + "cookies";
+
+
+			PreparedStatement stmtUpdate = conn.prepareStatement("UPDATE imageCount SET imgCount = imgCount + 1 WHERE photo_id = " + photo_id);
+
+			String test = "UPDATE imageCount SET imgCount = imgCount + 1 WHERE photo_id = " + photo_id;
+
+			out.print(test);
+			//stmtUpdate.executeUpdate();
+
+			response_message = response_message + "imgCount";
+
+
 			while (rset.next()) {
 				owner_name = rset.getString("owner_name");
 				subject = rset.getString("subject");
@@ -104,11 +117,14 @@ public class GetBigPic extends HttpServlet implements SingleThreadModel {
 				if (sec.edit_allowed(userid, photo_id, conn) == 1) {
 					out.println("<P><a href=\"EditForm?" + photo_id + "\"> Edit Image </a>");
 				}
+
+			response_message = response_message + "imgInfo";
 			}
 			//} else
 			//	out.println("<html> Pictures are not available</html>");
 		} catch (Exception ex) {
-			out.println(ex.getMessage());
+			response_message = response_message + "uhoh";
+			out.println(response_message);
 		}
 		// to close the connection
 		finally {

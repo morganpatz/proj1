@@ -86,13 +86,11 @@ public class UploadImage extends HttpServlet {
 		String permission = null;
 		String groupName = null;
 		int permissionValue = 2;
-		String imgCount = "";
 		File photo = null;
 		Date sqlDate = null;
 		String command = "";
 		InputStream instream = null;
 		Statement stmt = null;
-		Statement stmt3 = null;
 		PreparedStatement stmt1 = null;
 		PrintWriter out = response.getWriter();
 
@@ -164,14 +162,13 @@ public class UploadImage extends HttpServlet {
 				instream = item.getInputStream();
 				response_message = response_message + fieldname;
 
-				//BufferedImage img = ImageIO.read(instream);
-				//BufferedImage thumbnail = shrink(img, 10);
+				BufferedImage img = ImageIO.read(instream);
+				BufferedImage thumbnail = shrink(img, 10);
 
 				// Connect to the database and create a statement
 				Connection conn;
 				conn = getConnected(drivername, dbstring, username, password);
 				stmt = conn.createStatement();
-				stmt3 = conn.createStatement();
 
 				/*
 				 * First, to generate a unique pic_id using an SQL sequence
@@ -181,7 +178,7 @@ public class UploadImage extends HttpServlet {
 				rset1.next();
 				photo_id = rset1.getInt(1);
 
-				response_message = response_message + photo_id;
+				response_message = response_message + "photoid";
 
 				if (permission.equals("everyone")) {
 					permissionValue = 1;
@@ -201,42 +198,71 @@ public class UploadImage extends HttpServlet {
 					}
 
 				}
-				response_message = response_message + "groups" + permissionValue + userid;
+
 
 
 				// If a valid permitted value was supplied,
 				// perform the insert statement.
 				if (permissionValue != 0) {
-
+					if (date != null) {
 					command = "INSERT INTO images VALUES (" + photo_id + ", '"
 							+ userid + "', " + permissionValue + ", '"
 							+ subject + "', '" + location + "', to_date('"
 							+ date + "', 'YYYY-MM-DD'), '" + description
 							+ "', empty_blob(), empty_blob())";
-					
-					
-
-
-
-					response_message = photo_id + ", '"
+					}
+					else {
+					command = "INSERT INTO images VALUES (" + photo_id + ", '"
 							+ userid + "', " + permissionValue + ", '"
 							+ subject + "', '" + location + "', "
-							+ date + ", '" + description;
-					
-					stmt3.execute(command);
-
-					response_message = response_message + "executed insert";
+							+ date + ", '" + description
+							+ "', empty_blob(), empty_blob())";
+					}
 
 
-					Statement imgStmt = conn.createStatement();
 
-					imgCount = "INSERT INTO imageCount VALUES (" + photo_id + ", 0)";
-					imgStmt.execute(imgCount);
+					response_message = response_message + "query";
 
-	
+					stmt.execute(command);
+
+				    // to retrieve the lob_locator 
+				    // Note that you must use "FOR UPDATE" in the select statement
+				    String cmd = "SELECT thumbnail FROM images WHERE photo_id = " + photo_id + " FOR UPDATE";
+				    ResultSet rset = stmt.executeQuery(cmd);
+				    rset.next();
+				    BLOB myblob = ((OracleResultSet)rset).getBLOB(3);
 
 
-					response_message = response_message + "executed imgCount";
+				    //Write the image to the blob object
+				    OutputStream outstream = myblob.getBinaryOutputStream();
+				    ImageIO.write(thumbnail, "jpg", outstream);
+
+
+				    // to retrieve the lob_locator 
+				    // Note that you must use "FOR UPDATE" in the select statement
+				    String cmd1 = "SELECT photo FROM images WHERE photo_id = " + photo_id + " FOR UPDATE";
+				    ResultSet rset1 = stmt.executeQuery(cmd1);
+				    rset1.next();
+				    BLOB myblob = ((OracleResultSet)rset1).getBLOB(3);
+
+
+				    //Write the image to the blob object
+				    OutputStream outstream = myblob.getBinaryOutputStream();
+				    ImageIO.write(img, "jpg", outstream);
+				    
+				    /*
+				    int size = myblob.getBufferSize();
+				    byte[] buffer = new byte[size];
+				    int length = -1;
+				    while ((length = instream.read(buffer)) != -1)
+					outstream.write(buffer, 0, length);
+				    */
+				    instream.close();
+				    outstream.close();
+
+
+
+					response_message = response_message + "executed";
 
 					stmt1 = conn
 							.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = "
