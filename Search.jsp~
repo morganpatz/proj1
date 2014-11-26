@@ -14,8 +14,8 @@
       String m_driverName = "oracle.jdbc.driver.OracleDriver";
       
       // User Supplied Log-in Information
-      String m_userName = "patzelt"; //supply username
-      String m_password = "Chocolate1"; //supply password
+      String m_userName = "amlee1"; //supply username
+      String m_password = "splplus719"; //supply password
       
       String addItemError = "";
 
@@ -54,12 +54,30 @@
           <td>
             <input type=text name=query>
           </td>
+
+<tr><td> Or Search By Time Frame </td></tr>
+
+<tr><td>From: <script type="text/javascript"
+src="http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy/mm/dd"></script> &nbsp;
+To: <script type="text/javascript">
+$(function () {
+$("#SnapHost_Calendar2")
+.datepicker({ showOn: 'both', buttonImage: 'http://www.snaphost.com/jquery/calendar.gif',
+buttonImageOnly: true, changeMonth: true, showOtherMonths: true, selectOtherMonths: true
+});});</script>
+<input name="SnapHost_Calendar2" id="SnapHost_Calendar2" type="text" /> </td></tr>
+
           <td>
             <input type=submit value="Search" name="search">
           </td>
         </tr>
       </table>
+
+    
       <%
+
+	  String timing = request.getParameter("SnapHost_Calendar");
+	  String timing1 = request.getParameter("SnapHost_Calendar2");
 
           if (request.getParameter("search") != null)
           {
@@ -67,7 +85,8 @@
           	out.println("<br>");
           	out.println("Query is " + request.getParameter("query"));
           	out.println("<br>");
-          
+          int i = 0;
+	    // User has chosen to search by keyword
             if(!(request.getParameter("query").equals("")))
             {
 
@@ -103,17 +122,57 @@
                
               } 
               out.println("</table>");
-	      out.println("<P><a href=\"SearchBrowse\"> Continue </a>");
-            }
-            else
+	      out.println("<P><a href=\"SearchBrowse?byKey\"> Continue </a>");
+            
+
+
+	      // User entered a date
+	      } else if (!timing.equals("") && !timing1.equals("")) {
+
+			String newTiming1 = timing1.substring(6, 9) + "/" + timing1.substring(0, 1) + "/" + timing1.substring(3, 4);
+
+			timing1 = newTiming1;
+			
+			out.println("<br>");
+          		out.println("Time Frame is from " + timing + " to " +  timing1);
+          		out.println("<br>");
+
+			out.println("</table>");
+
+
+
+			String url = "SearchBrowse?" + timing + timing1;
+
+
+
+	      out.println("<P><a href=\"SearchBrowse?" + timing + timing1 + "\"> Continue </a>");
+
+	      
+              
+
+
+
+
+
+
+	    
+
+
+
+
+
+
+
+
+ 	    // User entered no input
+            } else
             {
-              out.println("<br><b>Please enter text for quering</b>");
+              out.println("<br><b>Please enter a valid input</b>");
+
+		
             }  
 	
-
-
-				
-		}          
+ 	}       
           
           m_con.close();
         

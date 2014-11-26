@@ -66,7 +66,7 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 			out.println("</head>");
 			out.println("<body bgcolor=\"#000000\" text=\"#cccccc\" >");
 			out.println("<left>");
-			out.println("<a href=\"indexExample.jsp\">Back to Search</a>");
+			out.println("<a href=\"Search.jsp\">Back to Search</a>");
 			out.println("<P ALIGN=\"right\">");
 			out.println("<a href=\"PictureBrowse\">Back to Home</a>");
 			out.println("</P>");
@@ -77,6 +77,8 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 			 * to execute the given query
 			 */
 			try {
+				if (request.getQueryString().equals("byKey")) {
+
 				String query = "SELECT photo_id FROM rankImage ORDER BY rank DESC";
 
 				Connection conn = getConnected();
@@ -98,6 +100,35 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 				}
 				stmt.close();
 				conn.close();
+
+			} else {
+				String dateStart = request.getQueryString().substring(0, 10);
+				String dateEnd = request.getQueryString().substring(10, 20);
+				
+
+				String query = "SELECT photo_id FROM images WHERE timing BETWEEN TO_DATE('" + dateStart + "', 'yyyy/mm/dd') AND TO_DATE('" + dateEnd + "', 'yyyy/mm/dd') ORDER BY timing DESC";
+
+				Connection conn = getConnected();
+				Statement stmt = conn.createStatement();
+				ResultSet rset = stmt.executeQuery(query);
+				String p_id = "";
+
+				while (rset.next()) {
+					p_id = (rset.getObject(1)).toString();
+					
+					//if (sec.view_allowed(userid, p_id, conn) == 1) {
+
+						// specify the servlet for the image
+						out.println("<a href=\"GetBigPic?big" + p_id + "\">");
+						// specify the servlet for the thumbnail
+						out.println("<img src=\"GetOnePic?" + p_id + "\"></a>");
+					//}
+
+				}
+				stmt.close();
+				conn.close();
+
+			}
 			} catch (Exception ex) {
 				out.println(ex.toString());
 			}
