@@ -114,13 +114,13 @@ public class EditImage extends HttpServlet {
 						+ place + "\' WHERE photo_id = " + photo_id);
 				updateLoc.executeUpdate();
 			}
-/**
+
 			if (!timing.isEmpty()) {
-				updateDate = conn.prepareStatement("UPDATE images SET timing = "
-						+ timing + " WHERE photo_id = " + photo_id);
+				updateDate = conn.prepareStatement("UPDATE images SET timing = to_date('"
+						+ timing + "', 'YYYY-MM-DD') WHERE photo_id = " + photo_id);
 				updateDate.executeUpdate();
 			}
-**/
+
 			if (!description.isEmpty()) {
 				updateDesc = conn
 						.prepareStatement("UPDATE images SET description = \'"
