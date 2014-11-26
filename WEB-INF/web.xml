@@ -95,6 +95,14 @@
         <url-pattern>/SearchBrowse</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>Groups</servlet-name>
+        <servlet-class>Groups</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Groups</servlet-name>
+        <url-pattern>/Groups</url-pattern>
+    </servlet-mapping>
 
 
 </web-app>
