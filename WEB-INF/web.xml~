@@ -104,7 +104,7 @@
         <url-pattern>/TopBrowse</url-pattern>
     </servlet-mapping>
 
-==
+==  <servlet>
         <servlet-name>Groups</servlet-name>
         <servlet-class>Groups</servlet-class>
     </servlet>
@@ -112,6 +112,16 @@
         <servlet-name>Groups</servlet-name>
         <url-pattern>/Groups</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Analyze</servlet-name>
+        <servlet-class>Analyze</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Analyze</servlet-name>
+        <url-pattern>/Analyze</url-pattern>
+    </servlet-mapping>
+
 >>
 
 
