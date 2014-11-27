@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <title>Analyze Images</title>
+  </head>
+  <body>
+    <style>
+      .conditional_form_part {
+      display: none;
+      }
+      
+      .conditional_form_part_activator:checked + .conditional_form_part {
+      display: block;
+      }
+    </style>
+    <a href="PictureBrowse">Return</a><br>
+
+    <form name="image-stats" method="POST" action="Analyze">
+      <tr><td alain = right>     Specify your Search Criteria:<br>&nbsp;<br>
+	  <tr><td alain = right>     Users:<br>
+	      All Users<td> <input class="allusers" name="user" type="radio" id="allusers" value="allusers">
+	      Specific User<input class="conditional_form_part_activator" name = "user" type="radio" id="user" value="user">
+	      <div class="conditional_form_part">
+		User Name: <input class="user" type=text size=20 name="USERID"></div></td><p>&nbsp;</p></td></tr>
+	  
+	  <tr><td alain = right>     Date Range:<br>
+	      From: <script type="text/javascript"
+			    src="http://www.snaphost.com/jquery/Calendar.aspx"></script> &nbsp;
+	      To: <script type="text/javascript">
+		$(function () {
+		$("#SnapHost_Calendar2")
+		.datepicker({ showOn: 'both', buttonImage: 'http://www.snaphost.com/jquery/calendar.gif',
+		buttonImageOnly: true, changeMonth: true, showOtherMonths: true, selectOtherMonths: true
+		});});</script>
+	      <input name="SnapHost_Calendar2" id="SnapHost_Calendar2" type="text" /><p>&nbsp;</p></td></tr>
+	  
+	  
+	  <tr><td alain = right>     Time Frame:<br>
+	      Yearly<td> <input class="yearly" name="tframe" type="radio" id="yearly" value="yearly">
+	      Monthly<td> <input class="monthly" name="tframe" type="radio" id="monthly" value="monthly">
+	      Weekly<td> <input class="weekly" name="tframe" type="radio" id="weekly" value="weekly"></td></tr><br>
+	  
+	  <tr><td alian = center colspan="2"><input type="submit" name="bSubmit"
+						    value="Search"></td></tr>
+	  
+      </td></tr>
+      
+    </form>
+    
+  </body>
+</html>
