@@ -3,6 +3,13 @@
     <TITLE>Log Out</TITLE>
   </HEAD>
   <BODY>
+    <!--Logout file for CMPUT391 project.
+      
+	Method for checking associated cookies with this domain, as well as
+	deleting cookies, based off of:
+	http://www.tutorialspoint.com/jsp/jsp_cookies_handling.htm
+      -->
+
     <%			   
        // Check to see if a user is already logged in through this browser by
        // checking the cookies associated with this domain.
