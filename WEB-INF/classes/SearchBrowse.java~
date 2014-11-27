@@ -104,7 +104,6 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 			} else {
 				String dateStart = request.getQueryString().substring(0, 10);
 				String dateEnd = request.getQueryString().substring(10, 20);
-				out.print(dateStart + " - " + dateEnd);
 				
 
 				String query = "SELECT photo_id FROM images WHERE timing BETWEEN TO_DATE('" + dateStart + "', 'yyyy/mm/dd') AND TO_DATE('" + dateEnd + "', 'yyyy/mm/dd') ORDER BY timing DESC";

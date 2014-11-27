@@ -1,8 +1,7 @@
 /***
- *  A sample program to demonstrate how to use servlet to 
- *  load an image file from the client disk via a web browser
- *  and insert the image into a table in Oracle DB.
+ *  A program that allows the user to edit fields of an image that they are the owner of
  *  
+ *  Taken From:
  *  Copyright 2005 COMPUT 391 Team, CS, UofA                             
  *  Author:  Fan Deng
  *                                                                  
@@ -15,7 +14,9 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
+ * 
+ *  Date: November 26, 2014
+ *  Author: Morgan Patzelt
  *
  *  the table shall be created using the following
       CREATE TABLE images (
@@ -66,7 +67,7 @@ public class EditForm extends HttpServlet {
 
 	private Connection conn = null;
 
-	// initial values
+	// initial connection values
 	String username = "amlee1";
 	String password = "splplus719";
 	String drivername = "oracle.jdbc.driver.OracleDriver";
@@ -78,7 +79,8 @@ public class EditForm extends HttpServlet {
 		String photo_id = request.getQueryString();
 
 		PrintWriter out = response.getWriter();
-
+		
+		// Check to makes sure the user is logged in
 		String userid = "";
 		Cookie login_cookie = null;
 		Cookie cookie = null;
@@ -112,6 +114,14 @@ public class EditForm extends HttpServlet {
 		out.println("<tr><td alian = right>  Date: </td><td alian = left> <script type=\"text/javascript\""
 			+" src=\"http://www.snaphost.com/jquery/Calendar.aspx?dateFormat=yy-mm-dd\"></script></script> &nbsp;</td></tr>");
 		out.println("<tr><td alian = right>  Description: </td><td alian = left> <textarea name=description rows=10 cols=30></textarea></td></tr>");
+
+		out.println("<tr><td alain = right>     Who Can See This Photo:");
+		out.println("<td>Everyone <input class=\"everyone\" name = \"permission\" type=\"radio\" id=\"everyone\" value=\"everyone\">");
+		out.println("Only Me <input class=\"useronly\" name = \"permission\" type=\"radio\" id=\"useronly\" value=\"useronly\">");
+		out.println("Specific Group <input class=\"conditional_form_part_activator\" name = \"permission\" type=\"radio\" id=\"group\" value=\"group\">");
+
+		out.println("<div class=\"conditional_form_part\">Group Name: <input class=\"groupname\" type=text size=20 name=\"groupName\"></td></select> </div></tr></td>");
+
 		out.println("<tr><td alian = center colspan=\"2\"><input type = submit value = \"Update Image\"></td></tr></form></table></body></html>");
 		}
 

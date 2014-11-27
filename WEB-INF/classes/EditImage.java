@@ -1,8 +1,7 @@
 /***
- *  A sample program to demonstrate how to use servlet to 
- *  load an image file from the client disk via a web browser
- *  and insert the image into a table in Oracle DB.
+ *  Takes values from EditForm.java and updates the image
  *  
+ *  Taken From:
  *  Copyright 2005 COMPUT 391 Team, CS, UofA                             
  *  Author:  Fan Deng
  *                                                                  
@@ -16,6 +15,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
+ *  Date: November 26, 2014
+ *  Author: Morgan Patzelt
  *
  *  the table shall be created using the following
       CREATE TABLE images (
@@ -74,8 +75,41 @@ public class EditImage extends HttpServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// change the following parameters to connect to the oracle database
+
+		Security sec = new Security();
+
+		PrintWriter out = response.getWriter();
+
+		// Check to makes sure the user is logged in
+		String userid = "";
+		Cookie login_cookie = null;
+		Cookie cookie = null;
+		Cookie[] cookies = null;
+		// Get an array of cookies associated with this domain
+		cookies = request.getCookies();
+		// If any cookies were found, see if any of them contain a valid login.
+		if (cookies != null) {
+			for (int i = 0; i < cookies.length; i++) {
+				cookie = cookies[i];
+				// out.println(cookie.getName()+"<br>");
+				// However, we only want one cookie, the one whose name matches
+				// the
+				// userid that has logged in on this browser.
+				if (i != 0 && userid == "") {
+					userid = cookie.getName();
+				}
+			}
+		}
+		// If no login was detected, redirect the user to the login page.
+		if (userid == "") {
+			out.println("<a href=login.jsp>Please login to access this site.</a>");
+		}
+		// Else, we have a valid session.
+		else {
+		// Gets the photo_id from the Query String
 		String photo_id = request.getQueryString();
+		
+		// Variables
 		String command = "";
 		InputStream instream = null;
 		Statement stmt = null;
@@ -83,17 +117,25 @@ public class EditImage extends HttpServlet {
 		PreparedStatement updateLoc = null;
 		PreparedStatement updateDate = null;
 		PreparedStatement updateDesc = null;
+		PreparedStatement updatePrivacy =  null;
 
+		// Default variables to add to table
 		String subject = null;
 		String place = null;
 		String timing = null;
 		String description = null;
+		String permission = null;
+		String groupName = null;
 
 		try {
+
+			// Gets the parameters for subject, place, timing, & description
 			subject = request.getParameter("subject");
 			place = request.getParameter("place");
 			timing = request.getParameter("SnapHost_Calendar");
 			description = request.getParameter("description");
+			permission = request.getParameter("permission");
+			groupName = request.getParameter("group");
 			response_message = response_message + subject + place + timing + description + "PHOTO ID = " + photo_id;
 		
 			// Connect to the database and create a statement
@@ -102,7 +144,7 @@ public class EditImage extends HttpServlet {
 			stmt = conn.createStatement();
 			response_message = response_message + "connection good";
 	
-
+			// Only updates fields that had input
 			if (!subject.isEmpty()) {
 				updateSub = conn.prepareStatement("UPDATE images SET subject = \'"
 						+ subject + "\' WHERE photo_id = " + photo_id);
@@ -127,16 +169,47 @@ public class EditImage extends HttpServlet {
 								+ description + "\' WHERE photo_id = " + photo_id);
 				updateDesc.executeUpdate();
 			}
+			if (!permission.isEmpty()) {
+				// Sets the permissions Value depending on what the user specified
+				// Default is private 
+				int permissionValue = 2;
+				if (permission.equals("everyone")) {
+					permissionValue = 1;
+				} else if (permission.equals("useronly")) {
+					permissionValue = 2;
+				} else if (permission.equals("group")) {
+					// Set permission value to 0 to indicate no
+					// valid group in the case the user does not
+					// supply a valid group ID.
+					permissionValue = 0;
+					// What we actually want is the group ID
+					String groupid = sec.find_group_id(userid, groupName,
+							conn);
+					// If a matching group ID is found, add it.
+					if (groupid != "") {
+						permissionValue = Integer.parseInt(groupid);
+					}
+
+				}
+
+
+
+
+				updateDesc = conn
+						.prepareStatement("UPDATE images SET permitted = \'"
+								+ permissionValue + "\' WHERE photo_id = " + photo_id);
+				updateDesc.executeUpdate();
+			}
 
 
 			response_message = "Image Updated!";
+	
 		} catch (Exception e) {
 			response_message = response_message + "uh oh";
 		}
 		try {
 			// Output response to the client
 			response.setContentType("text/html");
-			PrintWriter out = response.getWriter();
 			out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 "
 					+ "Transitional//EN\">\n" + "<HTML>\n"
 					+ "<HEAD><TITLE>Upload Message</TITLE></HEAD>\n"
@@ -149,6 +222,7 @@ public class EditImage extends HttpServlet {
 		} catch (Exception e) {
 			response_message = response_message + "4";
 		}
+	}
 	}
 
 	/*

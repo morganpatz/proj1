@@ -8,10 +8,12 @@ import java.text.*;
 import java.net.*;
 
 /**
- * A simple example to demonstrate how to use servlet to query and display a
- * list of pictures
+ * Displays the top 5 most visited pictures
  * 
+ * Taken From: (November 26, 2014)
  * @author Li-Yan Yuan
+ * 
+ * Author: Morgan Patzelt
  * 
  */
 public class TopBrowse extends HttpServlet implements SingleThreadModel {
@@ -27,9 +29,12 @@ public class TopBrowse extends HttpServlet implements SingleThreadModel {
 	public void doGet(HttpServletRequest request, HttpServletResponse res)
 			throws ServletException, IOException {
 
+		// Allows security methods to be used
 		Security sec = new Security();
 		
 		PrintWriter out = res.getWriter();
+
+		// Checks that the user is logged in 
 		String userid = "";
 		Cookie login_cookie = null;
 		Cookie cookie = null;
@@ -75,14 +80,18 @@ public class TopBrowse extends HttpServlet implements SingleThreadModel {
 			 * to execute the given query
 			 */
 			try {
+				// Gets photo ids of images and sorts by top visited from imageCount
 				String query = "SELECT photo_id FROM imageCount ORDER BY imgCount DESC";
 
+				// Connection
 				Connection conn = getConnected();
 				Statement stmt = conn.createStatement();
 				ResultSet rset = stmt.executeQuery(query);
 				String p_id = "";
+				// Counter to make sure only 5 are displayed
 				int counter = 1;
 
+				// Prints out top 5 pictures that the user is allowed to see
 				while (rset.next() && counter <= 5) {
 					p_id = (rset.getObject(1)).toString();
 					

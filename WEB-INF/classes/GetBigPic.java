@@ -12,21 +12,34 @@ import javax.servlet.RequestDispatcher;
  * This servlet sends one picture stored in the table below to the client who
  * requested the servlet.
  * 
- * picture( photo_id: integer, title: varchar, place: varchar, sm_image: blob,
- * image: blob )
+ * CREATE TABLE images (
+   photo_id    int,
+   owner_name  varchar(24),
+   permitted   int,
+   subject     varchar(128),
+   place       varchar(128),
+   timing      date,
+   description varchar(2048),
+   thumbnail   blob,
+   photo       blob,
+   PRIMARY KEY(photo_id),
+   FOREIGN KEY(owner_name) REFERENCES users,
+   FOREIGN KEY(permitted) REFERENCES groups
+   );
  * 
  * The request must come with a query string as follows: GetOnePic?12: sends the
  * picture in sm_image with photo_id = 12 GetOnePicture?big12: sends the picture
  * in image with photo_id = 12
  * 
- * @author Li-Yan Yuan
+ * Taken From: Li-Yan Yuan - November 26, 2014
+ * Author: Morgan Patzelt
  * 
  */
 public class GetBigPic extends HttpServlet implements SingleThreadModel {
 
 	/**
 	 * This method first gets the query string indicating PHOTO_ID, and then
-	 * executes the query select image from yuan.photos where photo_id =
+	 * executes the query select image fimages where photo_id =
 	 * PHOTO_ID Finally, it sends the picture to the client
 	 */
 	
@@ -44,7 +57,8 @@ public class GetBigPic extends HttpServlet implements SingleThreadModel {
 		String response_message = "ERROR: ";
 
 		String photo_id = request.getQueryString().substring(3);
-
+		
+		// Selects photo
 		query = "SELECT owner_name, subject, place, timing, description FROM images WHERE photo_id = " + photo_id;
 
 		// ServletOutputStream out = response.getOutputStream();
@@ -66,6 +80,7 @@ public class GetBigPic extends HttpServlet implements SingleThreadModel {
 			Date timing = null;
 			String description = "Desc";
 
+			// Checks to make sure that user is logged in
 			String userid = "";
 			Cookie login_cookie = null;
 			Cookie cookie = null;
@@ -88,34 +103,37 @@ public class GetBigPic extends HttpServlet implements SingleThreadModel {
 
 			response_message = response_message + "cookies";
 
-
+			// Updates the imageCount when someone looks at the image
 			PreparedStatement stmtUpdate = conn.prepareStatement("UPDATE imageCount SET imgCount = imgCount + 1 WHERE photo_id = " + photo_id);
 
 			stmtUpdate.executeUpdate();
 
 			response_message = response_message + "imgCount";
 
-
+			// Prints out image and image information
 			while (rset.next()) {
-				owner_name = rset.getString("owner_name");
-				subject = rset.getString("subject");
-				place = rset.getString("place");
-				timing = rset.getDate("timing");
-				description = rset.getString("description");
-				out.println("<html><head><title>\"" + subject + "\"</title></head>");				
-				out.println("<body bgcolor=\"#000000\" text=\"#cccccc\">"
-						+ "<center><img src = \"GetOnePic?big" + photo_id + "\">"
-						+ "<h3>Owner: " + owner_name + "</h3>"
-						+ "<h3>Subject: " + subject + "</h3>"
-						+ "<h3>Location: " + place + "</h3>"
-						+ "<h3>Date: " + timing + "</h3>"
-						+ "<h3>Description: " + description + "</h3>"
-						+ "</body></html>");
-				if (sec.edit_allowed(userid, photo_id, conn) == 1) {
-					out.println("<P><a href=\"EditForm?" + photo_id + "\"> Edit Image </a>");
-				}
+				// Checks that user is allowed to view the image
+			 	if (sec.view_allowed(userid, photo_id, conn) == 1) {
+					owner_name = rset.getString("owner_name");
+					subject = rset.getString("subject");
+					place = rset.getString("place");
+					timing = rset.getDate("timing");
+					description = rset.getString("description");
+					out.println("<html><head><title>\"" + subject + "\"</title></head>");				
+					out.println("<body bgcolor=\"#000000\" text=\"#cccccc\">"
+							+ "<center><img src = \"GetOnePic?big" + photo_id + "\">"
+							+ "<h3>Owner: " + owner_name + "</h3>"
+							+ "<h3>Subject: " + subject + "</h3>"
+							+ "<h3>Location: " + place + "</h3>"
+							+ "<h3>Date: " + timing + "</h3>"
+							+ "<h3>Description: " + description + "</h3>"
+							+ "</body></html>");
+					if (sec.edit_allowed(userid, photo_id, conn) == 1) {
+						out.println("<P><a href=\"EditForm?" + photo_id + "\"> Edit Image </a>");
+					}
 
-			response_message = response_message + "imgInfo";
+					response_message = response_message + "imgInfo";
+				}
 			}
 			//} else
 			//	out.println("<html> Pictures are not available</html>");

@@ -8,10 +8,12 @@ import java.text.*;
 import java.net.*;
 
 /**
- * A simple example to demonstrate how to use servlet to query and display a
- * list of pictures
+ * Displays the images that have been searched for by key or time frame
  * 
+ * Taken From: (November 26, 2014)
  * @author Li-Yan Yuan
+ * 
+ * Author: Morgan Patzelt
  * 
  */
 public class SearchBrowse extends HttpServlet implements SingleThreadModel {
@@ -27,9 +29,12 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 	public void doGet(HttpServletRequest request, HttpServletResponse res)
 			throws ServletException, IOException {
 
+		// Able to use security methods
 		Security sec = new Security();
 		
 		PrintWriter out = res.getWriter();
+
+		// Checks that the user is logged in
 		String userid = "";
 		Cookie login_cookie = null;
 		Cookie cookie = null;
@@ -78,14 +83,15 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 			 */
 			try {
 				if (request.getQueryString().equals("byKey")) {
-
+				// gets the photo_id of the images that have been ranked
 				String query = "SELECT photo_id FROM rankImage ORDER BY rank DESC";
 
 				Connection conn = getConnected();
 				Statement stmt = conn.createStatement();
 				ResultSet rset = stmt.executeQuery(query);
 				String p_id = "";
-
+		
+				// Prints out pictures if the user is allowed to see them
 				while (rset.next()) {
 					p_id = (rset.getObject(1)).toString();
 					
@@ -101,28 +107,33 @@ public class SearchBrowse extends HttpServlet implements SingleThreadModel {
 				stmt.close();
 				conn.close();
 
+			// If the user searches by string
 			} else {
+
+				// Gets the dates from the Query String
 				String dateStart = request.getQueryString().substring(0, 10);
 				String dateEnd = request.getQueryString().substring(10, 20);
 				
-
+				// Gets the photo IDs of images in the time frame and sorts by newest to oldest
 				String query = "SELECT photo_id FROM images WHERE timing BETWEEN TO_DATE('" + dateStart + "', 'yyyy/mm/dd') AND TO_DATE('" + dateEnd + "', 'yyyy/mm/dd') ORDER BY timing DESC";
 
+				// Connection
 				Connection conn = getConnected();
 				Statement stmt = conn.createStatement();
 				ResultSet rset = stmt.executeQuery(query);
 				String p_id = "";
 
+				// Prints images if user is allowed to see them
 				while (rset.next()) {
 					p_id = (rset.getObject(1)).toString();
 					
-					//if (sec.view_allowed(userid, p_id, conn) == 1) {
+					if (sec.view_allowed(userid, p_id, conn) == 1) {
 
 						// specify the servlet for the image
 						out.println("<a href=\"GetBigPic?big" + p_id + "\">");
 						// specify the servlet for the thumbnail
 						out.println("<img src=\"GetOnePic?" + p_id + "\"></a>");
-					//}
+					}
 
 				}
 				stmt.close();

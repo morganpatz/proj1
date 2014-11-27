@@ -1,10 +1,12 @@
 /***
- *  A sample program to demonstrate how to use servlet to 
- *  load an image file from the client disk via a web browser
- *  and insert the image into a table in Oracle DB.
+ *  A program to upload a JPEG file into the database
  *  
+ *  Taken From:
  *  Copyright 2005 COMPUT 391 Team, CS, UofA                             
  *  Author:  Fan Deng
+ * 
+ *  Author: Morgan Patzelt
+ *  Date: November 26, 2014
  *                                                                  
  *  Licensed under the Apache License, Version 2.0 (the "License");         
  *  you may not use this file except in compliance with the License.        
@@ -69,7 +71,7 @@ public class UploadImage extends HttpServlet {
 
 	private Connection conn = null;
 
-	// initial values
+	// Connection Log in Values
 	String username = "amlee1";
 	String password = "splplus719";
 	String drivername = "oracle.jdbc.driver.OracleDriver";
@@ -77,7 +79,7 @@ public class UploadImage extends HttpServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// change the following parameters to connect to the oracle database
+		// variables to insert into table
 		int photo_id = 0;
 		String subject = null;
 		String location = null;
@@ -89,6 +91,8 @@ public class UploadImage extends HttpServlet {
 		String imgCount = "";
 		File photo = null;
 		Date sqlDate = null;
+
+		// Other variables needed for code
 		String command = "";
 		InputStream instream = null;
 		Statement stmt = null;
@@ -96,8 +100,11 @@ public class UploadImage extends HttpServlet {
 		PreparedStatement stmt1 = null;
 		PrintWriter out = response.getWriter();
 
+		// Allows program to use security methods
 		Security sec = new Security();
 
+
+		// Checks to makes sure the user is logged in
 		String userid = "";
 		Cookie login_cookie = null;
 		Cookie cookie = null;
@@ -183,6 +190,9 @@ public class UploadImage extends HttpServlet {
 
 				response_message = response_message + photo_id;
 
+
+				// Sets the permissions Value depending on what the user specified
+				// Default is private 
 				if (permission.equals("everyone")) {
 					permissionValue = 1;
 				} else if (permission.equals("useronly")) {
@@ -207,16 +217,13 @@ public class UploadImage extends HttpServlet {
 				// If a valid permitted value was supplied,
 				// perform the insert statement.
 				if (permissionValue != 0) {
-
+					// Inserts values into the images table
 					command = "INSERT INTO images VALUES (" + photo_id + ", '"
 							+ userid + "', " + permissionValue + ", '"
 							+ subject + "', '" + location + "', to_date('"
 							+ date + "', 'YYYY-MM-DD'), '" + description
 							+ "', empty_blob(), empty_blob())";
 					
-					
-
-
 
 					response_message = photo_id + ", '"
 							+ userid + "', " + permissionValue + ", '"
@@ -227,17 +234,14 @@ public class UploadImage extends HttpServlet {
 
 					response_message = response_message + "executed insert";
 
-
+					// Inserts the photo ID into the imageCount table so that the visits to the page can be counted
 					Statement imgStmt = conn.createStatement();
-
 					imgCount = "INSERT INTO imageCount VALUES (" + photo_id + ", 0)";
 					imgStmt.execute(imgCount);
 
-	
-
-
 					response_message = response_message + "executed imgCount";
 
+					// Adds the image into the database (replaces empty_blob())
 					stmt1 = conn
 							.prepareStatement("UPDATE images SET photo = ? WHERE photo_id = "
 									+ photo_id);

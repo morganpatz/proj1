@@ -8,11 +8,14 @@ import java.text.*;
 import java.net.*;
 
 /**
- * A simple example to demonstrate how to use servlet to query and display a
- * list of pictures
+ * A servlet that displays many pictures from a database
+ * The user can click on an image to see information about the image
+ * Links to Upload Image, Login, Search, Top 5 Pics
  * 
+ * Taken From: (November 26, 2014)
  * @author Li-Yan Yuan
  * 
+ * Author: Morgan Patzelt
  */
 public class PictureBrowse extends HttpServlet implements SingleThreadModel {
 
@@ -27,9 +30,13 @@ public class PictureBrowse extends HttpServlet implements SingleThreadModel {
 	public void doGet(HttpServletRequest request, HttpServletResponse res)
 			throws ServletException, IOException {
 
+		// Allows the security features to be accesible
 		Security sec = new Security();
 		
+		// Outstream
 		PrintWriter out = res.getWriter();
+
+		//Checks that the user is logged in
 		String userid = "";
 		Cookie login_cookie = null;
 		Cookie cookie = null;
@@ -82,13 +89,15 @@ public class PictureBrowse extends HttpServlet implements SingleThreadModel {
 			 * to execute the given query
 			 */
 			try {
+				// Gets photo_id of all images
 				String query = "SELECT photo_id FROM images";
-
+				// Connection
 				Connection conn = getConnected();
 				Statement stmt = conn.createStatement();
 				ResultSet rset = stmt.executeQuery(query);
 				String p_id = "";
-
+	
+				// Prints the images if the user is allowed to see them
 				while (rset.next()) {
 					p_id = (rset.getObject(1)).toString();
 					
