@@ -8,6 +8,8 @@
 	Method for checking associated cookies with this domain, as well as
 	deleting cookies, based off of:
 	http://www.tutorialspoint.com/jsp/jsp_cookies_handling.htm
+
+	Author: Austin Lee
       -->
 
     <%			   

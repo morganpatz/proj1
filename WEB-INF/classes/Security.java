@@ -4,6 +4,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/*
+ * The security module. query_value and update_value are both based off
+ * login.jsp by Hong-Yu Zhang.
+ *
+ * Author: Austin Lee
+ */
+
 public class Security {
 
 	/*

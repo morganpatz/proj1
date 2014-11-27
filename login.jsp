@@ -104,7 +104,7 @@
        while(rset != null && rset.next())
        truepwd = (rset.getString(1)).trim();
 
-       // query the password related to this username
+       // check if the username is a a registerd user
        ResultSet nset = null;
        String name_check = "select USER_NAME from USERS "
        +"where USER_NAME = '"+userid+"'";

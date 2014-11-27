@@ -6,9 +6,14 @@
   </HEAD>
 
   <BODY>
-    <!--A simple example to demonstrate how to use JSP to 
-	connect and query a database. 
-	@author  Hong-Yu Zhang, University of Alberta
+    <!--
+	Registration file for CMPUT391 project, loosely based off of login.jsp
+	made by Hong-Yu Zhang:
+	  A simple example to demonstrate how to use JSP to 
+	  connect and query a database. 
+	  @author  Hong-Yu Zhang, University of Alberta
+	  
+	Author: Austin Lee
       -->
     <%@ page import="java.sql.*" %>
     <%
@@ -143,8 +148,6 @@
        }
        }
        //Then, we need to tell the user that registration was successful
-       //out.println(update_users);
-       //out.println(update_persons);
        //Direct the user to the login page
        out.println("Registration was successful.<br>");
        out.println("<a href=login.jsp>Click here to Log in.</a>");
